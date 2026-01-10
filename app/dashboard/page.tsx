@@ -3,6 +3,7 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { seedDatabase } from '@/lib/firestore';
 import { testGraphWalker } from '@/lib/graphWalkerExamples';
+import { testGraphValidator } from '@/lib/graphValidatorExamples';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 
@@ -12,6 +13,7 @@ export default function DashboardPage() {
     const [seeding, setSeeding] = useState(false);
     const [seedResult, setSeedResult] = useState<string | null>(null);
     const [testResult, setTestResult] = useState<string | null>(null);
+    const [validatorResult, setValidatorResult] = useState<string | null>(null);
 
     useEffect(() => {
         if (!loading && !user) {
@@ -52,6 +54,27 @@ export default function DashboardPage() {
             setTestResult(`✅ Tests completed! Check browser console for details.\n\nSummary:\n${logs.slice(0, 5).join('\n')}\n... (see console for full output)`);
         } catch (error) {
             setTestResult(`❌ Test error: ${error}`);
+        } finally {
+            console.log = originalLog;
+        }
+    };
+
+    const handleTestValidator = () => {
+        setValidatorResult('Running validation tests... Check browser console for detailed output.');
+
+        const originalLog = console.log;
+        const logs: string[] = [];
+
+        console.log = (...args) => {
+            logs.push(args.join(' '));
+            originalLog(...args);
+        };
+
+        try {
+            testGraphValidator();
+            setValidatorResult(`✅ Validation tests completed! Check browser console for details.\n\nSummary:\n${logs.slice(0, 5).join('\n')}\n... (see console for full output)`);
+        } catch (error) {
+            setValidatorResult(`❌ Test error: ${error}`);
         } finally {
             console.log = originalLog;
         }
@@ -136,6 +159,27 @@ export default function DashboardPage() {
 
                         <div className="bg-white/5 rounded-lg p-6 border border-white/10">
                             <h2 className="text-xl font-semibold text-white mb-4">
+                                🔍 Graph Validator Test
+                            </h2>
+                            <p className="text-purple-200 mb-4 text-sm">
+                                Test cycle detection and graph validation (7 test cases: valid, cycles, orphans, etc.).
+                            </p>
+                            <button
+                                onClick={handleTestValidator}
+                                className="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg transition-colors font-semibold"
+                            >
+                                Run Validator Tests
+                            </button>
+
+                            {validatorResult && (
+                                <div className="mt-4 p-4 bg-black/30 rounded-lg">
+                                    <pre className="text-sm text-white font-mono whitespace-pre-wrap">{validatorResult}</pre>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="bg-white/5 rounded-lg p-6 border border-white/10">
+                            <h2 className="text-xl font-semibold text-white mb-4">
                                 📊 Your Dendros
                             </h2>
                             <p className="text-purple-200 text-sm">
@@ -153,8 +197,8 @@ export default function DashboardPage() {
                             <ul className="text-purple-300 text-sm space-y-2">
                                 <li>✓ Schema & TypeScript Interfaces</li>
                                 <li>✓ Graph Walker Function</li>
-                                <li className="text-purple-400">⏳ Cycle Detection (Next)</li>
-                                <li className="text-purple-400">⏳ Firestore Validation</li>
+                                <li>✓ Cycle Detection</li>
+                                <li className="text-purple-400">⏳ Firestore Validation (Next)</li>
                             </ul>
                         </div>
                     </div>
