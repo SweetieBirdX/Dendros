@@ -75,7 +75,7 @@ Dendros moves away from traditional array-based forms, storing every interaction
 
 ## 🛡 Security & Access Logic
 
-* **Creator Access:** Restricted to authenticated users. Creators can only modify graphs where their `uid` matches the document's `ownerId`.
+* **Creator Access:** Restricted to authenticated users via email/password. Creators can only modify graphs where their `uid` matches the document's `ownerId`.
 * **Participant Access:** Publicly accessible via unique Form IDs. No registration is required for participants to maximize conversion and ease of use.
 * **Integrity:** Server-side validation to ensure graphs are acyclic and all edges have valid targets.
 

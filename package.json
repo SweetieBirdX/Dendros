@@ -1,0 +1,38 @@
+{
+  "name": "dendros",
+  "version": "1.0.0",
+  "description": "**Dendros** (from the Greek for *Tree*) is a sophisticated **Graph-Based Workflow Engine** designed to transform linear data collection into dynamic, branching narratives. Inspired by the flowchart structures of *Detroit: Become Human*, Dendros allows creators to build complex \"choose-your-own-adventure\" logic trees where every user response dictates a unique path, merge point, or outcome.",
+  "main": "index.js",
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SweetieBirdX/Dendros.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SweetieBirdX/Dendros/issues"
+  },
+  "homepage": "https://github.com/SweetieBirdX/Dendros#readme",
+  "dependencies": {
+    "firebase": "^12.7.0",
+    "next": "^16.1.1",
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "zustand": "^5.0.9"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.6",
+    "@types/react": "^19.2.8",
+    "autoprefixer": "^10.4.23",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.18",
+    "typescript": "^5.9.3"
+  }
+}
