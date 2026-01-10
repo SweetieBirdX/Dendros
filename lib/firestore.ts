@@ -11,7 +11,7 @@ import {
     Timestamp
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import { Dendros } from '@/store/graphStore';
+import type { Dendros } from '@/types/graph';
 
 const DENDROS_COLLECTION = 'dendros';
 
@@ -119,7 +119,7 @@ export async function seedDatabase(ownerId: string): Promise<string> {
                     type: 'root',
                     data: {
                         label: 'Welcome! Are you a Developer?',
-                        options: ['Yes', 'No'],
+                        welcomeMessage: 'Welcome to our onboarding flow!',
                     },
                     position: { x: 250, y: 0 },
                 },
@@ -128,7 +128,9 @@ export async function seedDatabase(ownerId: string): Promise<string> {
                     type: 'question',
                     data: {
                         label: 'What is your GitHub username?',
-                        type: 'text',
+                        inputType: 'text',
+                        placeholder: 'Enter your GitHub username',
+                        required: true,
                     },
                     position: { x: 100, y: 150 },
                 },
@@ -137,7 +139,9 @@ export async function seedDatabase(ownerId: string): Promise<string> {
                     type: 'question',
                     data: {
                         label: 'What interests you most?',
+                        inputType: 'multipleChoice',
                         options: ['Design', 'Marketing', 'Business'],
+                        required: true,
                     },
                     position: { x: 400, y: 150 },
                 },
@@ -146,6 +150,7 @@ export async function seedDatabase(ownerId: string): Promise<string> {
                     type: 'end',
                     data: {
                         label: 'Thank you! Your application has been submitted.',
+                        successMessage: 'We will review your application and get back to you soon!',
                     },
                     position: { x: 250, y: 300 },
                 },
@@ -155,14 +160,20 @@ export async function seedDatabase(ownerId: string): Promise<string> {
                     id: 'e1-2',
                     source: 'n1',
                     target: 'n2',
-                    condition: 'Yes',
+                    condition: {
+                        type: 'exact',
+                        value: 'Yes',
+                    },
                     label: 'Developer Path',
                 },
                 {
                     id: 'e1-3',
                     source: 'n1',
                     target: 'n3',
-                    condition: 'No',
+                    condition: {
+                        type: 'exact',
+                        value: 'No',
+                    },
                     label: 'Non-Developer Path',
                 },
                 {

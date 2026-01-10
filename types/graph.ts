@@ -1,0 +1,255 @@
+/**
+ * Core type definitions for the Dendros graph system
+ * This file contains all TypeScript interfaces and types for nodes, edges, and graphs
+ */
+
+// ============================================================================
+// NODE TYPES
+// ============================================================================
+
+/**
+ * Available node types in the graph
+ * - root: Starting point of the flow
+ * - question: User input node (text, multiple choice, etc.)
+ * - logic: Conditional branching node
+ * - end: Terminal node (completion screen)
+ */
+export type NodeType = 'root' | 'question' | 'logic' | 'end';
+
+/**
+ * Input types for question nodes
+ */
+export type QuestionInputType = 'text' | 'email' | 'number' | 'multipleChoice' | 'checkbox';
+
+/**
+ * Base data structure for all nodes
+ */
+export interface BaseNodeData {
+    label: string;
+    description?: string;
+}
+
+/**
+ * Data for root nodes (starting point)
+ */
+export interface RootNodeData extends BaseNodeData {
+    welcomeMessage?: string;
+}
+
+/**
+ * Data for question nodes (user input)
+ */
+export interface QuestionNodeData extends BaseNodeData {
+    inputType: QuestionInputType;
+    options?: string[]; // For multipleChoice and checkbox
+    placeholder?: string; // For text inputs
+    required?: boolean;
+    validation?: {
+        min?: number;
+        max?: number;
+        pattern?: string;
+        errorMessage?: string;
+    };
+}
+
+/**
+ * Data for logic nodes (conditional branching)
+ */
+export interface LogicNodeData extends BaseNodeData {
+    condition: string; // Expression to evaluate
+    description?: string;
+}
+
+/**
+ * Data for end nodes (completion)
+ */
+export interface EndNodeData extends BaseNodeData {
+    successMessage?: string;
+    redirectUrl?: string;
+}
+
+/**
+ * Union type for all possible node data types
+ */
+export type NodeData = RootNodeData | QuestionNodeData | LogicNodeData | EndNodeData;
+
+/**
+ * Position of a node in the visual editor
+ */
+export interface NodePosition {
+    x: number;
+    y: number;
+}
+
+/**
+ * Complete node structure
+ */
+export interface GraphNode {
+    id: string;
+    type: NodeType;
+    data: NodeData;
+    position?: NodePosition;
+}
+
+// ============================================================================
+// EDGE TYPES
+// ============================================================================
+
+/**
+ * Condition types for edges
+ * - exact: Exact match (e.g., answer === "Yes")
+ * - contains: Contains substring
+ * - range: Numeric range
+ * - regex: Regular expression match
+ * - always: Always traverse (default path)
+ */
+export type EdgeConditionType = 'exact' | 'contains' | 'range' | 'regex' | 'always';
+
+/**
+ * Edge condition structure
+ */
+export interface EdgeCondition {
+    type: EdgeConditionType;
+    value?: string | number | [number, number]; // Single value or range
+    pattern?: string; // For regex
+}
+
+/**
+ * Complete edge structure
+ */
+export interface GraphEdge {
+    id: string;
+    source: string; // Source node ID
+    target: string; // Target node ID
+    condition?: EdgeCondition;
+    label?: string; // Display label for the edge
+}
+
+// ============================================================================
+// GRAPH STRUCTURE
+// ============================================================================
+
+/**
+ * Complete graph structure containing nodes and edges
+ */
+export interface DendrosGraph {
+    nodes: GraphNode[];
+    edges: GraphEdge[];
+}
+
+/**
+ * Configuration for a Dendros workflow
+ */
+export interface DendrosConfig {
+    title: string;
+    slug: string;
+    description?: string;
+    isPublished?: boolean;
+    allowAnonymous?: boolean;
+}
+
+/**
+ * Complete Dendros document structure
+ */
+export interface Dendros {
+    dendrosId: string;
+    ownerId: string;
+    config: DendrosConfig;
+    graph: DendrosGraph;
+    createdAt?: Date;
+    updatedAt?: Date;
+}
+
+// ============================================================================
+// VALIDATION TYPES
+// ============================================================================
+
+/**
+ * Validation error structure
+ */
+export interface ValidationError {
+    type: 'cycle' | 'orphan' | 'invalidEdge' | 'missingNode' | 'invalidData';
+    message: string;
+    nodeId?: string;
+    edgeId?: string;
+}
+
+/**
+ * Graph validation result
+ */
+export interface ValidationResult {
+    isValid: boolean;
+    errors: ValidationError[];
+    warnings?: ValidationError[];
+}
+
+// ============================================================================
+// GRAPH WALKER TYPES
+// ============================================================================
+
+/**
+ * User answer type (can be single value or array for checkboxes)
+ */
+export type UserAnswer = string | number | string[];
+
+/**
+ * Result of graph traversal
+ */
+export interface TraversalResult {
+    nextNodeId: string | null;
+    isComplete: boolean;
+    error?: string;
+}
+
+/**
+ * User's journey through the graph
+ */
+export interface UserPath {
+    nodeId: string;
+    answer?: UserAnswer;
+    timestamp: Date;
+}
+
+/**
+ * Complete submission record
+ */
+export interface Submission {
+    submissionId: string;
+    dendrosId: string;
+    userId?: string; // Optional for anonymous submissions
+    path: UserPath[];
+    completedAt: Date;
+    metadata?: Record<string, any>;
+}
+
+// ============================================================================
+// HELPER TYPES
+// ============================================================================
+
+/**
+ * Type guard to check if node data is QuestionNodeData
+ */
+export function isQuestionNode(data: NodeData): data is QuestionNodeData {
+    return 'inputType' in data;
+}
+
+/**
+ * Type guard to check if node data is LogicNodeData
+ */
+export function isLogicNode(data: NodeData): data is LogicNodeData {
+    return 'condition' in data;
+}
+
+/**
+ * Type guard to check if node data is EndNodeData
+ */
+export function isEndNode(data: NodeData): data is EndNodeData {
+    return 'successMessage' in data || 'redirectUrl' in data;
+}
+
+/**
+ * Type guard to check if node data is RootNodeData
+ */
+export function isRootNode(data: NodeData): data is RootNodeData {
+    return 'welcomeMessage' in data;
+}

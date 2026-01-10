@@ -1,47 +1,10 @@
 import { create } from 'zustand';
-
-// Node types for the graph
-export type NodeType = 'root' | 'question' | 'logic' | 'end';
-
-export interface NodeData {
-    label: string;
-    type?: string;
-    options?: string[];
-    [key: string]: any;
-}
-
-export interface GraphNode {
-    id: string;
-    type: NodeType;
-    data: NodeData;
-    position?: { x: number; y: number };
-}
-
-export interface GraphEdge {
-    id: string;
-    source: string;
-    target: string;
-    condition?: string;
-    label?: string;
-}
-
-export interface DendrosGraph {
-    nodes: GraphNode[];
-    edges: GraphEdge[];
-}
-
-export interface Dendros {
-    dendrosId: string;
-    ownerId: string;
-    config: {
-        title: string;
-        slug: string;
-        description?: string;
-    };
-    graph: DendrosGraph;
-    createdAt?: Date;
-    updatedAt?: Date;
-}
+import type {
+    Dendros,
+    DendrosGraph,
+    GraphNode,
+    GraphEdge,
+} from '@/types/graph';
 
 interface GraphStore {
     currentDendros: Dendros | null;
@@ -49,8 +12,10 @@ interface GraphStore {
     updateGraph: (graph: DendrosGraph) => void;
     addNode: (node: GraphNode) => void;
     removeNode: (nodeId: string) => void;
+    updateNode: (nodeId: string, updates: Partial<GraphNode>) => void;
     addEdge: (edge: GraphEdge) => void;
     removeEdge: (edgeId: string) => void;
+    updateEdge: (edgeId: string, updates: Partial<GraphEdge>) => void;
     reset: () => void;
 }
 
@@ -61,7 +26,7 @@ export const useGraphStore = create<GraphStore>((set) => ({
 
     updateGraph: (graph) => set((state) => ({
         currentDendros: state.currentDendros
-            ? { ...state.currentDendros, graph }
+            ? { ...state.currentDendros, graph, updatedAt: new Date() }
             : null,
     })),
 
@@ -73,6 +38,7 @@ export const useGraphStore = create<GraphStore>((set) => ({
                     ...state.currentDendros.graph,
                     nodes: [...state.currentDendros.graph.nodes, node],
                 },
+                updatedAt: new Date(),
             }
             : null,
     })),
@@ -87,6 +53,22 @@ export const useGraphStore = create<GraphStore>((set) => ({
                         (e) => e.source !== nodeId && e.target !== nodeId
                     ),
                 },
+                updatedAt: new Date(),
+            }
+            : null,
+    })),
+
+    updateNode: (nodeId, updates) => set((state) => ({
+        currentDendros: state.currentDendros
+            ? {
+                ...state.currentDendros,
+                graph: {
+                    ...state.currentDendros.graph,
+                    nodes: state.currentDendros.graph.nodes.map((n) =>
+                        n.id === nodeId ? { ...n, ...updates } : n
+                    ),
+                },
+                updatedAt: new Date(),
             }
             : null,
     })),
@@ -99,6 +81,7 @@ export const useGraphStore = create<GraphStore>((set) => ({
                     ...state.currentDendros.graph,
                     edges: [...state.currentDendros.graph.edges, edge],
                 },
+                updatedAt: new Date(),
             }
             : null,
     })),
@@ -111,6 +94,22 @@ export const useGraphStore = create<GraphStore>((set) => ({
                     ...state.currentDendros.graph,
                     edges: state.currentDendros.graph.edges.filter((e) => e.id !== edgeId),
                 },
+                updatedAt: new Date(),
+            }
+            : null,
+    })),
+
+    updateEdge: (edgeId, updates) => set((state) => ({
+        currentDendros: state.currentDendros
+            ? {
+                ...state.currentDendros,
+                graph: {
+                    ...state.currentDendros.graph,
+                    edges: state.currentDendros.graph.edges.map((e) =>
+                        e.id === edgeId ? { ...e, ...updates } : e
+                    ),
+                },
+                updatedAt: new Date(),
             }
             : null,
     })),
