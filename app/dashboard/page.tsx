@@ -1,7 +1,7 @@
 'use client';
 
 import { useAuth } from '@/contexts/AuthContext';
-import { seedDatabase } from '@/lib/firestore';
+import { seedDatabase, seedDatabaseWithValidation } from '@/lib/firestore';
 import { testGraphWalker } from '@/lib/graphWalkerExamples';
 import { testGraphValidator } from '@/lib/graphValidatorExamples';
 import { useRouter } from 'next/navigation';
@@ -32,6 +32,26 @@ export default function DashboardPage() {
             setSeedResult(`✅ Database seeded successfully! Dendros ID: ${dendrosId}`);
         } catch (error) {
             setSeedResult(`❌ Error seeding database: ${error}`);
+        } finally {
+            setSeeding(false);
+        }
+    };
+
+    const handleSeedWithValidation = async () => {
+        if (!user) return;
+
+        setSeeding(true);
+        setSeedResult(null);
+
+        try {
+            const result = await seedDatabaseWithValidation(user.uid);
+            if (result.success) {
+                setSeedResult(`✅ Validated seeding successful! Dendros ID: ${result.dendrosId}\n\nGraph passed all validation checks (no cycles, valid structure).`);
+            } else {
+                setSeedResult(`❌ Validation failed: ${result.error}`);
+            }
+        } catch (error) {
+            setSeedResult(`❌ Error: ${error}`);
         } finally {
             setSeeding(false);
         }
@@ -121,17 +141,26 @@ export default function DashboardPage() {
                             <p className="text-purple-200 mb-4 text-sm">
                                 Create a sample Dendros document in Firestore to test the connection.
                             </p>
-                            <button
-                                onClick={handleSeedDatabase}
-                                disabled={seeding}
-                                className="bg-purple-500 hover:bg-purple-600 disabled:bg-purple-500/50 text-white px-6 py-3 rounded-lg transition-colors font-semibold"
-                            >
-                                {seeding ? 'Seeding...' : 'Seed Database'}
-                            </button>
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={handleSeedDatabase}
+                                    disabled={seeding}
+                                    className="bg-purple-500 hover:bg-purple-600 disabled:bg-purple-500/50 text-white px-6 py-3 rounded-lg transition-colors font-semibold"
+                                >
+                                    {seeding ? 'Seeding...' : 'Seed Database'}
+                                </button>
+                                <button
+                                    onClick={handleSeedWithValidation}
+                                    disabled={seeding}
+                                    className="bg-green-500 hover:bg-green-600 disabled:bg-green-500/50 text-white px-6 py-3 rounded-lg transition-colors font-semibold"
+                                >
+                                    {seeding ? 'Validating...' : 'Seed with Validation'}
+                                </button>
+                            </div>
 
                             {seedResult && (
                                 <div className="mt-4 p-4 bg-black/30 rounded-lg">
-                                    <p className="text-sm text-white font-mono">{seedResult}</p>
+                                    <pre className="text-sm text-white font-mono whitespace-pre-wrap">{seedResult}</pre>
                                 </div>
                             )}
                         </div>
@@ -198,7 +227,7 @@ export default function DashboardPage() {
                                 <li>✓ Schema & TypeScript Interfaces</li>
                                 <li>✓ Graph Walker Function</li>
                                 <li>✓ Cycle Detection</li>
-                                <li className="text-purple-400">⏳ Firestore Validation (Next)</li>
+                                <li>✓ Firestore Validation</li>
                             </ul>
                         </div>
                     </div>

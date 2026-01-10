@@ -12,6 +12,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import type { Dendros } from '@/types/graph';
+import { validateGraph, quickValidate } from '@/lib/graphValidator';
 
 const DENDROS_COLLECTION = 'dendros';
 
@@ -28,6 +29,38 @@ export async function createDendros(dendros: Omit<Dendros, 'createdAt' | 'update
     };
 
     await setDoc(dendrosRef, dendrosData);
+}
+
+/**
+ * Create a new Dendros document with validation
+ * Validates the graph before saving to Firestore
+ */
+export async function createDendrosWithValidation(
+    dendros: Omit<Dendros, 'createdAt' | 'updatedAt'>
+): Promise<{ success: boolean; error?: string; dendrosId?: string }> {
+    // Validate the graph
+    const validation = validateGraph(dendros.graph);
+
+    if (!validation.isValid) {
+        const errorMessages = validation.errors.map(e => e.message).join('; ');
+        return {
+            success: false,
+            error: `Graph validation failed: ${errorMessages}`,
+        };
+    }
+
+    try {
+        await createDendros(dendros);
+        return {
+            success: true,
+            dendrosId: dendros.dendrosId,
+        };
+    } catch (error) {
+        return {
+            success: false,
+            error: `Firestore error: ${error}`,
+        };
+    }
 }
 
 /**
@@ -59,6 +92,38 @@ export async function updateDendros(dendrosId: string, updates: Partial<Dendros>
         ...updates,
         updatedAt: Timestamp.now(),
     });
+}
+
+/**
+ * Update an existing Dendros document with validation
+ * If updating the graph, validates it before saving
+ */
+export async function updateDendrosWithValidation(
+    dendrosId: string,
+    updates: Partial<Dendros>
+): Promise<{ success: boolean; error?: string }> {
+    // If updating the graph, validate it
+    if (updates.graph) {
+        const validation = validateGraph(updates.graph);
+
+        if (!validation.isValid) {
+            const errorMessages = validation.errors.map(e => e.message).join('; ');
+            return {
+                success: false,
+                error: `Graph validation failed: ${errorMessages}`,
+            };
+        }
+    }
+
+    try {
+        await updateDendros(dendrosId, updates);
+        return { success: true };
+    } catch (error) {
+        return {
+            success: false,
+            error: `Firestore error: ${error}`,
+        };
+    }
 }
 
 /**
@@ -192,4 +257,99 @@ export async function seedDatabase(ownerId: string): Promise<string> {
 
     await createDendros(sampleDendros);
     return sampleDendrosId;
+}
+
+/**
+ * Seed database with validation (safe version)
+ */
+export async function seedDatabaseWithValidation(ownerId: string): Promise<{ success: boolean; dendrosId?: string; error?: string }> {
+    const sampleDendrosId = `dndr_${Date.now()}`;
+
+    const sampleDendros: Omit<Dendros, 'createdAt' | 'updatedAt'> = {
+        dendrosId: sampleDendrosId,
+        ownerId: ownerId,
+        config: {
+            title: 'Sample Onboarding Flow (Validated)',
+            slug: 'sample-onboarding-validated',
+            description: 'A validated sample branching narrative',
+        },
+        graph: {
+            nodes: [
+                {
+                    id: 'n1',
+                    type: 'root',
+                    data: {
+                        label: 'Welcome! Are you a Developer?',
+                        welcomeMessage: 'Welcome to our onboarding flow!',
+                    },
+                    position: { x: 250, y: 0 },
+                },
+                {
+                    id: 'n2',
+                    type: 'question',
+                    data: {
+                        label: 'What is your GitHub username?',
+                        inputType: 'text',
+                        placeholder: 'Enter your GitHub username',
+                        required: true,
+                    },
+                    position: { x: 100, y: 150 },
+                },
+                {
+                    id: 'n3',
+                    type: 'question',
+                    data: {
+                        label: 'What interests you most?',
+                        inputType: 'multipleChoice',
+                        options: ['Design', 'Marketing', 'Business'],
+                        required: true,
+                    },
+                    position: { x: 400, y: 150 },
+                },
+                {
+                    id: 'n4',
+                    type: 'end',
+                    data: {
+                        label: 'Thank you! Your application has been submitted.',
+                        successMessage: 'We will review your application and get back to you soon!',
+                    },
+                    position: { x: 250, y: 300 },
+                },
+            ],
+            edges: [
+                {
+                    id: 'e1-2',
+                    source: 'n1',
+                    target: 'n2',
+                    condition: {
+                        type: 'exact',
+                        value: 'Yes',
+                    },
+                    label: 'Developer Path',
+                },
+                {
+                    id: 'e1-3',
+                    source: 'n1',
+                    target: 'n3',
+                    condition: {
+                        type: 'exact',
+                        value: 'No',
+                    },
+                    label: 'Non-Developer Path',
+                },
+                {
+                    id: 'e2-4',
+                    source: 'n2',
+                    target: 'n4',
+                },
+                {
+                    id: 'e3-4',
+                    source: 'n3',
+                    target: 'n4',
+                },
+            ],
+        },
+    };
+
+    return await createDendrosWithValidation(sampleDendros);
 }
