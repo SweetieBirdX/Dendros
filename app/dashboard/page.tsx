@@ -2,6 +2,7 @@
 
 import { useAuth } from '@/contexts/AuthContext';
 import { seedDatabase } from '@/lib/firestore';
+import { testGraphWalker } from '@/lib/graphWalkerExamples';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 
@@ -10,6 +11,7 @@ export default function DashboardPage() {
     const router = useRouter();
     const [seeding, setSeeding] = useState(false);
     const [seedResult, setSeedResult] = useState<string | null>(null);
+    const [testResult, setTestResult] = useState<string | null>(null);
 
     useEffect(() => {
         if (!loading && !user) {
@@ -30,6 +32,28 @@ export default function DashboardPage() {
             setSeedResult(`❌ Error seeding database: ${error}`);
         } finally {
             setSeeding(false);
+        }
+    };
+
+    const handleTestGraphWalker = () => {
+        setTestResult('Running tests... Check browser console for detailed output.');
+
+        // Run tests and capture console output
+        const originalLog = console.log;
+        const logs: string[] = [];
+
+        console.log = (...args) => {
+            logs.push(args.join(' '));
+            originalLog(...args);
+        };
+
+        try {
+            testGraphWalker();
+            setTestResult(`✅ Tests completed! Check browser console for details.\n\nSummary:\n${logs.slice(0, 5).join('\n')}\n... (see console for full output)`);
+        } catch (error) {
+            setTestResult(`❌ Test error: ${error}`);
+        } finally {
+            console.log = originalLog;
         }
     };
 
@@ -91,6 +115,27 @@ export default function DashboardPage() {
 
                         <div className="bg-white/5 rounded-lg p-6 border border-white/10">
                             <h2 className="text-xl font-semibold text-white mb-4">
+                                🧠 Graph Walker Test
+                            </h2>
+                            <p className="text-purple-200 mb-4 text-sm">
+                                Test the Graph Walker logic with example flows (Yes/No, Numeric Range).
+                            </p>
+                            <button
+                                onClick={handleTestGraphWalker}
+                                className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg transition-colors font-semibold"
+                            >
+                                Run Graph Walker Tests
+                            </button>
+
+                            {testResult && (
+                                <div className="mt-4 p-4 bg-black/30 rounded-lg">
+                                    <pre className="text-sm text-white font-mono whitespace-pre-wrap">{testResult}</pre>
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="bg-white/5 rounded-lg p-6 border border-white/10">
+                            <h2 className="text-xl font-semibold text-white mb-4">
                                 📊 Your Dendros
                             </h2>
                             <p className="text-purple-200 text-sm">
@@ -100,18 +145,16 @@ export default function DashboardPage() {
 
                         <div className="bg-white/5 rounded-lg p-6 border border-white/10">
                             <h2 className="text-xl font-semibold text-white mb-2">
-                                ✅ Phase 1 Complete
+                                ✅ Phase 2 Progress
                             </h2>
                             <p className="text-purple-200 text-sm mb-4">
-                                The foundation is ready. Next up: Phase 2 - The Core Logic
+                                Core Logic Implementation
                             </p>
                             <ul className="text-purple-300 text-sm space-y-2">
-                                <li>✓ Next.js 14 + TypeScript + Tailwind</li>
-                                <li>✓ Firebase Auth & Firestore</li>
-                                <li>✓ Authentication System</li>
-                                <li>✓ Middleware Protection</li>
-                                <li>✓ Zustand State Management</li>
-                                <li>✓ Firestore CRUD Services</li>
+                                <li>✓ Schema & TypeScript Interfaces</li>
+                                <li>✓ Graph Walker Function</li>
+                                <li className="text-purple-400">⏳ Cycle Detection (Next)</li>
+                                <li className="text-purple-400">⏳ Firestore Validation</li>
                             </ul>
                         </div>
                     </div>
