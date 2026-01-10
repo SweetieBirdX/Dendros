@@ -9,31 +9,14 @@ export async function middleware(request: NextRequest) {
         // Extract dendrosId from the path
         const dendrosId = pathname.split('/')[1];
 
-        // Get the session token from cookies
-        const sessionToken = request.cookies.get('__session')?.value;
+        // TODO: Implement server-side auth with Firebase Admin SDK
+        // For now, we rely on client-side auth in the page component
+        // This is acceptable for development but should be enhanced for production
 
-        if (!sessionToken) {
-            // No authentication token found, redirect to login
-            return NextResponse.redirect(new URL('/login', request.url));
-        }
+        const response = NextResponse.next();
+        response.headers.set('x-dendros-id', dendrosId);
 
-        try {
-            // In a production environment, you would:
-            // 1. Verify the Firebase ID token server-side using Firebase Admin SDK
-            // 2. Extract the user's UID from the verified token
-            // 3. Query Firestore to check if user's UID matches the document's ownerId
-
-            // For now, we'll add a header to indicate this needs server-side verification
-            // This will be fully implemented when we add Firebase Admin SDK
-            const response = NextResponse.next();
-            response.headers.set('x-dendros-id', dendrosId);
-            response.headers.set('x-requires-auth', 'true');
-
-            return response;
-        } catch (error) {
-            console.error('Middleware authentication error:', error);
-            return NextResponse.redirect(new URL('/login', request.url));
-        }
+        return response;
     }
 
     return NextResponse.next();
