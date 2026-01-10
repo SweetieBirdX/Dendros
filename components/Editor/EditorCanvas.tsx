@@ -15,19 +15,23 @@ import {
     type OnConnect,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import type { Dendros, GraphNode, NodeType } from '@/types/graph';
+import type { Dendros, GraphNode, GraphEdge, NodeType } from '@/types/graph';
 import { nodeTypes } from '@/components/Editor/Nodes';
+import { edgeTypes } from '@/components/Editor/Edges';
 import NodePalette from '@/components/Editor/NodePalette';
 import NodeEditModal from '@/components/Editor/NodeEditModal';
+import EdgeEditModal from '@/components/Editor/EdgeEditModal';
 
 interface EditorCanvasProps {
     dendros: Dendros;
-    onGraphChange?: (nodes: GraphNode[], edges: any[]) => void;
+    onGraphChange?: (nodes: GraphNode[], edges: GraphEdge[]) => void;
 }
 
 export default function EditorCanvas({ dendros, onGraphChange }: EditorCanvasProps) {
     const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedEdge, setSelectedEdge] = useState<GraphEdge | null>(null);
+    const [isNodeModalOpen, setIsNodeModalOpen] = useState(false);
+    const [isEdgeModalOpen, setIsEdgeModalOpen] = useState(false);
 
     // Convert Dendros graph to React Flow format
     const initialNodes: Node[] = dendros.graph.nodes.map(node => ({
@@ -42,6 +46,7 @@ export default function EditorCanvas({ dendros, onGraphChange }: EditorCanvasPro
         source: edge.source,
         target: edge.target,
         label: edge.label,
+        data: edge.condition,
     }));
 
     const [nodes, setNodes, onNodesChange] = useNodesState<Node>(initialNodes);
@@ -49,7 +54,12 @@ export default function EditorCanvas({ dendros, onGraphChange }: EditorCanvasPro
 
     const onConnect: OnConnect = useCallback(
         (connection) => {
-            setEdges((eds) => addEdge(connection, eds));
+            const newEdge = {
+                ...connection,
+                id: `edge_${Date.now()}`,
+                label: 'New Connection',
+            };
+            setEdges((eds) => addEdge(newEdge, eds));
         },
         [setEdges]
     );
@@ -69,7 +79,7 @@ export default function EditorCanvas({ dendros, onGraphChange }: EditorCanvasPro
         setNodes((nds) => [...nds, newNode]);
     }, [setNodes]);
 
-    // Open edit modal on node double-click
+    // Open node edit modal on double-click
     const handleNodeDoubleClick = useCallback((_event: any, node: Node) => {
         const graphNode: GraphNode = {
             id: node.id,
@@ -78,7 +88,20 @@ export default function EditorCanvas({ dendros, onGraphChange }: EditorCanvasPro
             position: node.position,
         };
         setSelectedNode(graphNode);
-        setIsModalOpen(true);
+        setIsNodeModalOpen(true);
+    }, []);
+
+    // Open edge edit modal on click
+    const handleEdgeClick = useCallback((_event: any, edge: Edge) => {
+        const graphEdge: GraphEdge = {
+            id: edge.id,
+            source: edge.source,
+            target: edge.target,
+            label: edge.label as string,
+            condition: edge.data || { type: 'always' },
+        };
+        setSelectedEdge(graphEdge);
+        setIsEdgeModalOpen(true);
     }, []);
 
     // Save edited node
@@ -95,11 +118,31 @@ export default function EditorCanvas({ dendros, onGraphChange }: EditorCanvasPro
         );
     }, [setNodes]);
 
+    // Save edited edge
+    const handleSaveEdge = useCallback((updatedEdge: GraphEdge) => {
+        setEdges((eds) =>
+            eds.map((e) =>
+                e.id === updatedEdge.id
+                    ? {
+                        ...e,
+                        label: updatedEdge.label,
+                        data: updatedEdge.condition,
+                    }
+                    : e
+            )
+        );
+    }, [setEdges]);
+
     // Delete node
     const handleDeleteNode = useCallback((nodeId: string) => {
         setNodes((nds) => nds.filter((n) => n.id !== nodeId));
         setEdges((eds) => eds.filter((e) => e.source !== nodeId && e.target !== nodeId));
     }, [setNodes, setEdges]);
+
+    // Delete edge
+    const handleDeleteEdge = useCallback((edgeId: string) => {
+        setEdges((eds) => eds.filter((e) => e.id !== edgeId));
+    }, [setEdges]);
 
     return (
         <div className="w-full h-full relative">
@@ -110,7 +153,9 @@ export default function EditorCanvas({ dendros, onGraphChange }: EditorCanvasPro
                 onEdgesChange={onEdgesChange}
                 onConnect={onConnect}
                 onNodeDoubleClick={handleNodeDoubleClick}
+                onEdgeClick={handleEdgeClick}
                 nodeTypes={nodeTypes}
+                edgeTypes={edgeTypes}
                 fitView
                 className="bg-slate-950"
             >
@@ -147,16 +192,28 @@ export default function EditorCanvas({ dendros, onGraphChange }: EditorCanvasPro
             {/* Node Palette */}
             <NodePalette onAddNode={handleAddNode} />
 
-            {/* Edit Modal */}
+            {/* Node Edit Modal */}
             <NodeEditModal
                 node={selectedNode}
-                isOpen={isModalOpen}
+                isOpen={isNodeModalOpen}
                 onClose={() => {
-                    setIsModalOpen(false);
+                    setIsNodeModalOpen(false);
                     setSelectedNode(null);
                 }}
                 onSave={handleSaveNode}
                 onDelete={handleDeleteNode}
+            />
+
+            {/* Edge Edit Modal */}
+            <EdgeEditModal
+                edge={selectedEdge}
+                isOpen={isEdgeModalOpen}
+                onClose={() => {
+                    setIsEdgeModalOpen(false);
+                    setSelectedEdge(null);
+                }}
+                onSave={handleSaveEdge}
+                onDelete={handleDeleteEdge}
             />
         </div>
     );
