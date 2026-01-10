@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import {
     ReactFlow,
     Background,
@@ -15,14 +15,20 @@ import {
     type OnConnect,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import type { Dendros } from '@/types/graph';
+import type { Dendros, GraphNode, NodeType } from '@/types/graph';
 import { nodeTypes } from '@/components/Editor/Nodes';
+import NodePalette from '@/components/Editor/NodePalette';
+import NodeEditModal from '@/components/Editor/NodeEditModal';
 
 interface EditorCanvasProps {
     dendros: Dendros;
+    onGraphChange?: (nodes: GraphNode[], edges: any[]) => void;
 }
 
-export default function EditorCanvas({ dendros }: EditorCanvasProps) {
+export default function EditorCanvas({ dendros, onGraphChange }: EditorCanvasProps) {
+    const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
     // Convert Dendros graph to React Flow format
     const initialNodes: Node[] = dendros.graph.nodes.map(node => ({
         id: node.id,
@@ -38,7 +44,7 @@ export default function EditorCanvas({ dendros }: EditorCanvasProps) {
         label: edge.label,
     }));
 
-    const [nodes, , onNodesChange] = useNodesState<Node>(initialNodes);
+    const [nodes, setNodes, onNodesChange] = useNodesState<Node>(initialNodes);
     const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>(initialEdges);
 
     const onConnect: OnConnect = useCallback(
@@ -48,14 +54,62 @@ export default function EditorCanvas({ dendros }: EditorCanvasProps) {
         [setEdges]
     );
 
+    // Add new node
+    const handleAddNode = useCallback((type: NodeType) => {
+        const newId = `node_${Date.now()}`;
+        const newNode: Node = {
+            id: newId,
+            type,
+            position: { x: Math.random() * 400 + 100, y: Math.random() * 300 + 100 },
+            data: {
+                label: `New ${type.charAt(0).toUpperCase() + type.slice(1)}`,
+            },
+        };
+
+        setNodes((nds) => [...nds, newNode]);
+    }, [setNodes]);
+
+    // Open edit modal on node double-click
+    const handleNodeDoubleClick = useCallback((_event: any, node: Node) => {
+        const graphNode: GraphNode = {
+            id: node.id,
+            type: node.type as NodeType,
+            data: node.data,
+            position: node.position,
+        };
+        setSelectedNode(graphNode);
+        setIsModalOpen(true);
+    }, []);
+
+    // Save edited node
+    const handleSaveNode = useCallback((updatedNode: GraphNode) => {
+        setNodes((nds) =>
+            nds.map((n) =>
+                n.id === updatedNode.id
+                    ? {
+                        ...n,
+                        data: updatedNode.data,
+                    }
+                    : n
+            )
+        );
+    }, [setNodes]);
+
+    // Delete node
+    const handleDeleteNode = useCallback((nodeId: string) => {
+        setNodes((nds) => nds.filter((n) => n.id !== nodeId));
+        setEdges((eds) => eds.filter((e) => e.source !== nodeId && e.target !== nodeId));
+    }, [setNodes, setEdges]);
+
     return (
-        <div className="w-full h-full">
+        <div className="w-full h-full relative">
             <ReactFlow
                 nodes={nodes}
                 edges={edges}
                 onNodesChange={onNodesChange}
                 onEdgesChange={onEdgesChange}
                 onConnect={onConnect}
+                onNodeDoubleClick={handleNodeDoubleClick}
                 nodeTypes={nodeTypes}
                 fitView
                 className="bg-slate-950"
@@ -89,6 +143,21 @@ export default function EditorCanvas({ dendros }: EditorCanvasProps) {
                     }}
                 />
             </ReactFlow>
+
+            {/* Node Palette */}
+            <NodePalette onAddNode={handleAddNode} />
+
+            {/* Edit Modal */}
+            <NodeEditModal
+                node={selectedNode}
+                isOpen={isModalOpen}
+                onClose={() => {
+                    setIsModalOpen(false);
+                    setSelectedNode(null);
+                }}
+                onSave={handleSaveNode}
+                onDelete={handleDeleteNode}
+            />
         </div>
     );
 }
