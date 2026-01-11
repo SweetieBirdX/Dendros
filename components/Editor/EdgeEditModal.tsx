@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import type { GraphEdge, EdgeConditionType } from '@/types/graph';
+import ConfirmDialog from './ConfirmDialog';
 
 interface EdgeEditModalProps {
     edge: GraphEdge | null;
@@ -20,6 +21,7 @@ export default function EdgeEditModal({ edge, isOpen, onClose, onSave, onDelete 
         rangeMin: '',
         rangeMax: '',
     });
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
     useEffect(() => {
         if (edge) {
@@ -72,10 +74,13 @@ export default function EdgeEditModal({ edge, isOpen, onClose, onSave, onDelete 
     };
 
     const handleDelete = () => {
-        if (confirm('Are you sure you want to delete this connection?')) {
-            onDelete(edge.id);
-            onClose();
-        }
+        setShowDeleteConfirm(true);
+    };
+
+    const confirmDelete = () => {
+        onDelete(edge.id);
+        setShowDeleteConfirm(false);
+        onClose();
     };
 
     return (
@@ -225,6 +230,17 @@ export default function EdgeEditModal({ edge, isOpen, onClose, onSave, onDelete 
                     </div>
                 </div>
             </div>
+
+            <ConfirmDialog
+                isOpen={showDeleteConfirm}
+                title="Delete Connection"
+                message="Are you sure you want to delete this connection? This action cannot be retrieved."
+                confirmText="Delete"
+                cancelText="Cancel"
+                onConfirm={confirmDelete}
+                onCancel={() => setShowDeleteConfirm(false)}
+                type="danger"
+            />
         </div>
     );
 }

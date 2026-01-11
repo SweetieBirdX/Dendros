@@ -17,3 +17,35 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* React Flow Controls - Make buttons visible on dark background */
+.react-flow__controls-button {
+  background-color: rgba(139, 92, 246, 0.8) !important;
+  border-color: rgba(139, 92, 246, 0.5) !important;
+  color: white !important;
+}
+
+.react-flow__controls-button:hover {
+  background-color: rgba(139, 92, 246, 1) !important;
+}
+
+.react-flow__controls-button svg {
+  fill: white !important;
+}
+
+/* MiniMap - Show edges as thin lines */
+.react-flow__minimap-mask {
+  fill: rgba(15, 23, 42, 0.7) !important;
+}
+
+.react-flow__minimap svg path {
+  stroke: rgba(16, 185, 129, 0.6) !important;
+  stroke-width: 2 !important;
+}
+
+/* Specifically target edge paths in minimap */
+.react-flow__minimap svg path[class*="edge"] {
+  stroke: rgba(16, 185, 129, 0.7) !important;
+  stroke-width: 2 !important;
+  fill: none !important;
+}

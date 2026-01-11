@@ -50,7 +50,6 @@ export default function NodePalette({ onAddNode }: NodePaletteProps) {
                   shadow-lg
                 `}
                             >
-                                <span className="text-2xl">{icon}</span>
                                 <span>{label}</span>
                             </button>
                         ))}

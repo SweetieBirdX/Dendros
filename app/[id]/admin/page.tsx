@@ -18,6 +18,10 @@ export default function EditorPage() {
     const [error, setError] = useState<string | null>(null);
     const [saving, setSaving] = useState(false);
     const [lastSaved, setLastSaved] = useState<Date | null>(null);
+    const [editingTitle, setEditingTitle] = useState(false);
+    const [tempTitle, setTempTitle] = useState('');
+    const [editingDescription, setEditingDescription] = useState(false);
+    const [tempDescription, setTempDescription] = useState('');
 
     const dendrosId = params.id as string;
 
@@ -70,6 +74,90 @@ export default function EditorPage() {
             alert(`Error saving: ${err}`);
         } finally {
             setSaving(false);
+        }
+    };
+
+    const handleTitleEdit = () => {
+        if (!dendros) return;
+        setTempTitle(dendros.config.title);
+        setEditingTitle(true);
+    };
+
+    const handleTitleSave = async () => {
+        if (!dendros || !tempTitle.trim()) {
+            setEditingTitle(false);
+            return;
+        }
+
+        setSaving(true);
+        try {
+            const updatedConfig = {
+                ...dendros.config,
+                title: tempTitle.trim(),
+            };
+            await updateDendros(dendrosId, {
+                config: updatedConfig,
+            });
+            setDendros({
+                ...dendros,
+                config: updatedConfig,
+            });
+            setLastSaved(new Date());
+            setEditingTitle(false);
+        } catch (err) {
+            alert(`Error updating title: ${err}`);
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleTitleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter') {
+            handleTitleSave();
+        } else if (e.key === 'Escape') {
+            setEditingTitle(false);
+        }
+    };
+
+    const handleDescriptionEdit = () => {
+        if (!dendros) return;
+        setTempDescription(dendros.config.description || '');
+        setEditingDescription(true);
+    };
+
+    const handleDescriptionSave = async () => {
+        if (!dendros) {
+            setEditingDescription(false);
+            return;
+        }
+
+        setSaving(true);
+        try {
+            const updatedConfig = {
+                ...dendros.config,
+                description: tempDescription.trim(),
+            };
+            await updateDendros(dendrosId, {
+                config: updatedConfig,
+            });
+            setDendros({
+                ...dendros,
+                config: updatedConfig,
+            });
+            setLastSaved(new Date());
+            setEditingDescription(false);
+        } catch (err) {
+            alert(`Error updating description: ${err}`);
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleDescriptionKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter') {
+            handleDescriptionSave();
+        } else if (e.key === 'Escape') {
+            setEditingDescription(false);
         }
     };
 
@@ -150,9 +238,46 @@ export default function EditorPage() {
                         ← Back
                     </button>
                     <div>
-                        <h1 className="text-white text-xl font-bold">{dendros.config.title}</h1>
+                        {editingTitle ? (
+                            <input
+                                type="text"
+                                value={tempTitle}
+                                onChange={(e) => setTempTitle(e.target.value)}
+                                onBlur={handleTitleSave}
+                                onKeyDown={handleTitleKeyDown}
+                                autoFocus
+                                className="bg-white/10 text-white text-xl font-bold px-2 py-1 rounded border border-purple-500 focus:outline-none focus:border-purple-400"
+                            />
+                        ) : (
+                            <h1
+                                className="text-white text-xl font-bold cursor-pointer hover:text-purple-200 transition-colors"
+                                onClick={handleTitleEdit}
+                                title="Click to edit title"
+                            >
+                                {dendros.config.title}
+                            </h1>
+                        )}
                         <div className="flex items-center gap-3 text-sm">
-                            <p className="text-purple-300">{dendros.config.description}</p>
+                            {editingDescription ? (
+                                <input
+                                    type="text"
+                                    value={tempDescription}
+                                    onChange={(e) => setTempDescription(e.target.value)}
+                                    onBlur={handleDescriptionSave}
+                                    onKeyDown={handleDescriptionKeyDown}
+                                    autoFocus
+                                    placeholder="Add a description..."
+                                    className="bg-white/10 text-purple-300 text-sm px-2 py-1 rounded border border-purple-500 focus:outline-none focus:border-purple-400 min-w-[300px]"
+                                />
+                            ) : (
+                                <p
+                                    className="text-purple-300 cursor-pointer hover:text-purple-200 transition-colors"
+                                    onClick={handleDescriptionEdit}
+                                    title="Click to edit description"
+                                >
+                                    {dendros.config.description || 'Add a description...'}
+                                </p>
+                            )}
                             {lastSaved && (
                                 <span className="text-green-300">
                                     ✓ Saved {lastSaved.toLocaleTimeString()}
@@ -163,10 +288,17 @@ export default function EditorPage() {
                 </div>
                 <div className="flex items-center gap-3">
                     <button
+                        onClick={() => window.open(`/${dendrosId}`, '_blank')}
+                        className="bg-cyan-500 hover:bg-cyan-600 text-white px-4 py-2 rounded-lg transition-colors font-semibold"
+                        title="Preview as visitor"
+                    >
+                        See as Visitor
+                    </button>
+                    <button
                         onClick={() => router.push(`/${dendrosId}/admin/analytics`)}
                         className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors font-semibold"
                     >
-                        📊 Analytics
+                        Analytics
                     </button>
                     <button
                         onClick={handleSave}

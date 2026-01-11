@@ -78,6 +78,15 @@ export default function AnalyticsPage() {
         }).format(date);
     };
 
+    const getNodeLabel = (nodeId: string): string => {
+        if (!dendros) return nodeId;
+        const node = dendros.graph.nodes.find(n => n.id === nodeId);
+        if (!node) return nodeId;
+
+        // Return the label from node data
+        return node.data.label || nodeId;
+    };
+
     if (loading || loadingData) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
@@ -204,16 +213,19 @@ export default function AnalyticsPage() {
                                                             <div>
                                                                 <h4 className="text-purple-300 font-semibold mb-2">Path Taken:</h4>
                                                                 <div className="flex flex-wrap gap-2">
-                                                                    {submission.path.map((step, idx) => (
-                                                                        <div key={idx} className="bg-purple-500/20 border border-purple-500/30 rounded px-3 py-1 text-sm text-purple-200">
-                                                                            {step.nodeId}
-                                                                            {step.answer && (
-                                                                                <span className="ml-2 text-purple-300">
-                                                                                    → {typeof step.answer === 'object' ? JSON.stringify(step.answer) : step.answer}
-                                                                                </span>
-                                                                            )}
-                                                                        </div>
-                                                                    ))}
+                                                                    {submission.path.map((step, idx) => {
+                                                                        const nodeLabel = getNodeLabel(step.nodeId);
+                                                                        return (
+                                                                            <div key={idx} className="bg-purple-500/20 border border-purple-500/30 rounded px-3 py-1 text-sm text-purple-200">
+                                                                                <span className="font-semibold">{nodeLabel}</span>
+                                                                                {step.answer && (
+                                                                                    <span className="ml-2 text-purple-300">
+                                                                                        → {typeof step.answer === 'object' ? JSON.stringify(step.answer) : step.answer}
+                                                                                    </span>
+                                                                                )}
+                                                                            </div>
+                                                                        );
+                                                                    })}
                                                                 </div>
                                                             </div>
                                                         </div>

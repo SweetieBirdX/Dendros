@@ -102,10 +102,37 @@ export async function submitResponse(dendrosId: string, submission: Omit<Submiss
     const dendrosRef = doc(db, DENDROS_COLLECTION, dendrosId);
     const submissionsRef = collection(dendrosRef, 'submissions');
 
-    const docRef = await addDoc(submissionsRef, {
-        ...submission,
-        completedAt: Timestamp.fromDate(submission.completedAt),
+    // Sanitize path: remove undefined answer fields
+    const sanitizedPath = submission.path.map(step => {
+        const sanitized: any = {
+            nodeId: step.nodeId,
+            timestamp: step.timestamp
+        };
+        // Only include answer if it's not undefined
+        if (step.answer !== undefined) {
+            sanitized.answer = step.answer;
+        }
+        return sanitized;
     });
+
+    // Create clean submission object without undefined fields
+    const cleanSubmission: any = {
+        dendrosId: submission.dendrosId,
+        path: sanitizedPath,
+        completedAt: Timestamp.fromDate(submission.completedAt),
+    };
+
+    // Only add userId if it exists
+    if (submission.userId) {
+        cleanSubmission.userId = submission.userId;
+    }
+
+    // Only add metadata if it exists
+    if (submission.metadata) {
+        cleanSubmission.metadata = submission.metadata;
+    }
+
+    const docRef = await addDoc(submissionsRef, cleanSubmission);
 
     return docRef.id;
 }
@@ -130,8 +157,8 @@ export async function seedDatabase(userId: string): Promise<string> {
         dendrosId,
         ownerId: userId,
         config: {
-            title: 'My First Flow',
-            slug: 'my-first-flow',
+            title: 'My Dendros',
+            slug: 'my-dendros',
             description: 'A sample flow to get you started',
             isPublished: false,
         },
@@ -162,8 +189,8 @@ export async function seedDatabaseWithValidation(userId: string): Promise<{ succ
         dendrosId,
         ownerId: userId,
         config: {
-            title: 'My Validated Flow',
-            slug: 'my-validated-flow',
+            title: 'My Dendros',
+            slug: 'my-dendros',
             description: 'A sample flow checked by validation',
             isPublished: false,
         },
@@ -199,4 +226,22 @@ export async function fetchSubmissions(dendrosId: string): Promise<Submission[]>
             path: data.path || []
         } as Submission;
     }).sort((a, b) => b.completedAt.getTime() - a.completedAt.getTime());
+}
+
+/**
+ * Fetch all Dendros owned by a specific user
+ */
+export async function fetchUserDendros(userId: string): Promise<Dendros[]> {
+    const dendrosCollection = collection(db, DENDROS_COLLECTION);
+    const q = query(dendrosCollection, where('ownerId', '==', userId));
+    const snapshot = await getDocs(q);
+
+    return snapshot.docs.map(docSnap => {
+        const data = docSnap.data();
+        return {
+            ...data,
+            createdAt: data.createdAt?.toDate(),
+            updatedAt: data.updatedAt?.toDate(),
+        } as Dendros;
+    }).sort((a, b) => (b.updatedAt?.getTime() || 0) - (a.updatedAt?.getTime() || 0));
 }

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import type { GraphNode, NodeType, QuestionInputType } from '@/types/graph';
+import ConfirmDialog from './ConfirmDialog';
 
 interface NodeEditModalProps {
     node: GraphNode | null;
@@ -24,6 +25,7 @@ export default function NodeEditModal({ node, isOpen, onClose, onSave, onDelete 
         successMessage: '',
         redirectUrl: '',
     });
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
     useEffect(() => {
         if (node) {
@@ -80,10 +82,13 @@ export default function NodeEditModal({ node, isOpen, onClose, onSave, onDelete 
     };
 
     const handleDelete = () => {
-        if (confirm('Are you sure you want to delete this node?')) {
-            onDelete(node.id);
-            onClose();
-        }
+        setShowDeleteConfirm(true);
+    };
+
+    const confirmDelete = () => {
+        onDelete(node.id);
+        setShowDeleteConfirm(false);
+        onClose();
     };
 
     return (
@@ -277,6 +282,17 @@ export default function NodeEditModal({ node, isOpen, onClose, onSave, onDelete 
                     </div>
                 </div>
             </div>
+
+            <ConfirmDialog
+                isOpen={showDeleteConfirm}
+                title="Delete Node"
+                message="Are you sure you want to delete this node? This action cannot be retrieved."
+                confirmText="Delete"
+                cancelText="Cancel"
+                onConfirm={confirmDelete}
+                onCancel={() => setShowDeleteConfirm(false)}
+                type="danger"
+            />
         </div>
     );
 }

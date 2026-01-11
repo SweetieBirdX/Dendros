@@ -211,20 +211,26 @@ export default function EditorCanvas({ dendros, onGraphChange }: EditorCanvasPro
                     showInteractive={false}
                 />
                 <MiniMap
-                    className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-lg"
+                    className="bg-slate-900/80 backdrop-blur-lg border border-purple-500/30 rounded-lg"
                     nodeColor={(node) => {
                         switch (node.type) {
                             case 'root':
-                                return '#10b981';
+                                return '#059669'; // Darker emerald
                             case 'question':
-                                return '#3b82f6';
+                                return '#2563eb'; // Darker blue
                             case 'logic':
-                                return '#f59e0b';
+                                return '#d97706'; // Darker amber
                             case 'end':
-                                return '#ef4444';
+                                return '#dc2626'; // Darker red
                             default:
-                                return '#6366f1';
+                                return '#7c3aed'; // Darker purple
                         }
+                    }}
+                    nodeStrokeColor="#10b981"
+                    nodeStrokeWidth={2}
+                    maskColor="rgba(15, 23, 42, 0.7)"
+                    style={{
+                        backgroundColor: 'rgba(15, 23, 42, 0.8)',
                     }}
                 />
             </ReactFlow>
