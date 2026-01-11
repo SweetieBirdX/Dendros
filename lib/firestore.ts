@@ -179,3 +179,24 @@ export async function seedDatabaseWithValidation(userId: string): Promise<{ succ
     };
     return await createDendrosWithValidation(dendros);
 }
+
+/**
+ * Fetch all submissions for a specific Dendros
+ */
+export async function fetchSubmissions(dendrosId: string): Promise<Submission[]> {
+    const dendrosRef = doc(db, DENDROS_COLLECTION, dendrosId);
+    const submissionsRef = collection(dendrosRef, 'submissions');
+
+    const q = query(submissionsRef);
+    const snapshot = await getDocs(q);
+
+    return snapshot.docs.map(docSnap => {
+        const data = docSnap.data();
+        return {
+            submissionId: docSnap.id,
+            ...data,
+            completedAt: data.completedAt?.toDate(),
+            path: data.path || []
+        } as Submission;
+    }).sort((a, b) => b.completedAt.getTime() - a.completedAt.getTime());
+}

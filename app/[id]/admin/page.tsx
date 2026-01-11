@@ -163,6 +163,12 @@ export default function EditorPage() {
                 </div>
                 <div className="flex items-center gap-3">
                     <button
+                        onClick={() => router.push(`/${dendrosId}/admin/analytics`)}
+                        className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors font-semibold"
+                    >
+                        📊 Analytics
+                    </button>
+                    <button
                         onClick={handleSave}
                         disabled={saving}
                         className="bg-purple-500 hover:bg-purple-600 disabled:bg-purple-500/50 text-white px-4 py-2 rounded-lg transition-colors font-semibold"
