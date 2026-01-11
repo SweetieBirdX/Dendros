@@ -3,14 +3,17 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { fetchUserDendros } from '@/lib/firestore';
+import { fetchUserDendros, deleteDendros } from '@/lib/firestore';
 import type { Dendros } from '@/types/graph';
+import ConfirmDialog from '@/components/Editor/ConfirmDialog';
 
 export default function DashboardPage() {
     const { user, loading, signOut } = useAuth();
     const router = useRouter();
     const [dendrosList, setDendrosList] = useState<Dendros[]>([]);
     const [loadingDendros, setLoadingDendros] = useState(true);
+    const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; dendrosId: string | null }>({ isOpen: false, dendrosId: null });
+    const [copiedId, setCopiedId] = useState<string | null>(null);
 
     useEffect(() => {
         if (!loading && !user) {
@@ -40,6 +43,34 @@ export default function DashboardPage() {
     const handleCreateNew = () => {
         // Navigate to a new Dendros creation flow (to be implemented)
         alert('Create new Dendros - Coming soon!');
+    };
+
+    const handleDeleteClick = (dendrosId: string, e: React.MouseEvent) => {
+        e.stopPropagation(); // Prevent card click
+        setDeleteConfirm({ isOpen: true, dendrosId });
+    };
+
+    const confirmDelete = async () => {
+        if (!deleteConfirm.dendrosId) return;
+
+        try {
+            await deleteDendros(deleteConfirm.dendrosId);
+            // Remove from local state
+            setDendrosList(prev => prev.filter(d => d.dendrosId !== deleteConfirm.dendrosId));
+            setDeleteConfirm({ isOpen: false, dendrosId: null });
+        } catch (error) {
+            console.error('Error deleting dendros:', error);
+            alert('Failed to delete. Please try again.');
+        }
+    };
+
+    const handleShareClick = (dendrosId: string, e: React.MouseEvent) => {
+        e.stopPropagation();
+        const url = `${window.location.origin}/${dendrosId}`;
+        navigator.clipboard.writeText(url).then(() => {
+            setCopiedId(dendrosId);
+            setTimeout(() => setCopiedId(null), 2000); // Reset after 2 seconds
+        });
     };
 
     if (loading || loadingDendros) {
@@ -114,11 +145,37 @@ export default function DashboardPage() {
                                         <h3 className="text-white font-semibold text-lg group-hover:text-purple-300 transition-colors">
                                             {dendros.config.title}
                                         </h3>
-                                        {dendros.config.isPublished && (
-                                            <span className="bg-green-500/20 text-green-300 text-xs px-2 py-1 rounded-full border border-green-500/30">
-                                                Published
-                                            </span>
-                                        )}
+                                        <div className="flex items-center gap-2">
+                                            {dendros.config.isPublished && (
+                                                <span className="bg-green-500/20 text-green-300 text-xs px-2 py-1 rounded-full border border-green-500/30">
+                                                    Published
+                                                </span>
+                                            )}
+                                            <button
+                                                onClick={(e) => handleShareClick(dendros.dendrosId, e)}
+                                                className="text-cyan-400 hover:text-cyan-300 transition-colors p-1"
+                                                title="Copy Link"
+                                            >
+                                                {copiedId === dendros.dendrosId ? (
+                                                    <svg className="w-5 h-5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                                    </svg>
+                                                ) : (
+                                                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                                                    </svg>
+                                                )}
+                                            </button>
+                                            <button
+                                                onClick={(e) => handleDeleteClick(dendros.dendrosId, e)}
+                                                className="text-red-400 hover:text-red-300 transition-colors p-1"
+                                                title="Delete Dendros"
+                                            >
+                                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                            </button>
+                                        </div>
                                     </div>
 
                                     {dendros.config.description && (
@@ -145,6 +202,17 @@ export default function DashboardPage() {
                     )}
                 </div>
             </div>
+
+            <ConfirmDialog
+                isOpen={deleteConfirm.isOpen}
+                title="Delete Dendros"
+                message="Are you sure you want to delete this Dendros? All responses will be lost and this action cannot be retrieved."
+                confirmText="Delete"
+                cancelText="Cancel"
+                onConfirm={confirmDelete}
+                onCancel={() => setDeleteConfirm({ isOpen: false, dendrosId: null })}
+                type="danger"
+            />
         </div>
     );
 }

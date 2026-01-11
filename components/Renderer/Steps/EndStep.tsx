@@ -39,7 +39,7 @@ export default function EndStep({ data, onStartOver }: EndStepProps) {
                     onClick={onStartOver}
                     className="text-slate-400 hover:text-white px-6 py-2 transition-colors text-sm"
                 >
-                    Start Over
+                    Submit Another Response
                 </button>
             </div>
         </div>

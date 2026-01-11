@@ -96,6 +96,23 @@ export async function updateDendros(dendrosId: string, updates: Partial<Dendros>
 }
 
 /**
+ * Delete a Dendros document and all its submissions
+ */
+export async function deleteDendros(dendrosId: string): Promise<void> {
+    const dendrosRef = doc(db, DENDROS_COLLECTION, dendrosId);
+
+    // First, delete all submissions
+    const submissionsRef = collection(dendrosRef, 'submissions');
+    const submissionsSnapshot = await getDocs(submissionsRef);
+
+    const deletePromises = submissionsSnapshot.docs.map(doc => deleteDoc(doc.ref));
+    await Promise.all(deletePromises);
+
+    // Then delete the Dendros document itself
+    await deleteDoc(dendrosRef);
+}
+
+/**
  * Submit a flow response
  */
 export async function submitResponse(dendrosId: string, submission: Omit<Submission, 'submissionId'>): Promise<string> {
