@@ -3,7 +3,8 @@ import { Handle, Position } from '@xyflow/react';
 import type { NodeProps } from '@xyflow/react';
 import type { QuestionNodeData } from '@/types/graph';
 
-function QuestionNode({ data, selected }: NodeProps<QuestionNodeData>) {
+function QuestionNode({ data: propData, selected }: NodeProps) {
+    const data = propData as unknown as QuestionNodeData;
     const inputTypeLabels: Record<string, string> = {
         text: '📝 Text',
         email: '📧 Email',

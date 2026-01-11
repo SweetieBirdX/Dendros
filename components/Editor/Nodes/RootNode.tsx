@@ -3,7 +3,8 @@ import { Handle, Position } from '@xyflow/react';
 import type { NodeProps } from '@xyflow/react';
 import type { RootNodeData } from '@/types/graph';
 
-function RootNode({ data, selected }: NodeProps<RootNodeData>) {
+function RootNode({ data: propData, selected }: NodeProps) {
+    const data = propData as unknown as RootNodeData;
     return (
         <div
             className={`

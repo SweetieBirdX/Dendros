@@ -90,9 +90,9 @@ export default function EditorCanvas({ dendros, onGraphChange }: EditorCanvasPro
                 id: `edge_${Date.now()}`,
                 label: 'New Connection',
             };
-            const updatedEdges = addEdge(newEdge, edges);
+            const updatedEdges = addEdge(newEdge, edges as any);
             setEdges(updatedEdges);
-            notifyGraphChange(nodes, updatedEdges as Edge[]);
+            notifyGraphChange(nodes, updatedEdges as any);
         },
         [setEdges, edges, nodes, notifyGraphChange]
     );

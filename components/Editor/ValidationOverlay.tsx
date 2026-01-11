@@ -1,7 +1,7 @@
 'use client';
 
-import { validateGraph, type ValidationResult } from '@/lib/graphValidator';
-import type { DendrosGraph } from '@/types/graph';
+import { validateGraph } from '@/lib/graphValidator';
+import type { DendrosGraph, ValidationResult } from '@/types/graph';
 
 interface ValidationOverlayProps {
     graph: DendrosGraph;
@@ -10,7 +10,7 @@ interface ValidationOverlayProps {
 export default function ValidationOverlay({ graph }: ValidationOverlayProps) {
     const validation: ValidationResult = validateGraph(graph);
 
-    if (validation.isValid && validation.warnings.length === 0) {
+    if (validation.isValid && (!validation.warnings || validation.warnings.length === 0)) {
         return null; // No issues, don't show overlay
     }
 
@@ -46,7 +46,7 @@ export default function ValidationOverlay({ graph }: ValidationOverlayProps) {
                 )}
 
                 {/* Warnings */}
-                {validation.warnings.length > 0 && (
+                {validation.warnings && validation.warnings.length > 0 && (
                     <div className="p-4 space-y-2 border-t border-white/10">
                         <p className="text-yellow-200 text-sm font-semibold mb-2">Warnings:</p>
                         {validation.warnings.map((warning, index) => (

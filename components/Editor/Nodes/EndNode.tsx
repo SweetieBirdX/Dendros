@@ -3,7 +3,8 @@ import { Handle, Position } from '@xyflow/react';
 import type { NodeProps } from '@xyflow/react';
 import type { EndNodeData } from '@/types/graph';
 
-function EndNode({ data, selected }: NodeProps<EndNodeData>) {
+function EndNode({ data: propData, selected }: NodeProps) {
+    const data = propData as unknown as EndNodeData;
     return (
         <div
             className={`

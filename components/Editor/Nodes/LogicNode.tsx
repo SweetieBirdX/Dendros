@@ -3,7 +3,8 @@ import { Handle, Position } from '@xyflow/react';
 import type { NodeProps } from '@xyflow/react';
 import type { LogicNodeData } from '@/types/graph';
 
-function LogicNode({ data, selected }: NodeProps<LogicNodeData>) {
+function LogicNode({ data: propData, selected }: NodeProps) {
+    const data = propData as unknown as LogicNodeData;
     return (
         <div
             className={`
