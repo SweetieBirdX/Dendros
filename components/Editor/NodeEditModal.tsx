@@ -12,7 +12,18 @@ interface NodeEditModalProps {
 }
 
 export default function NodeEditModal({ node, isOpen, onClose, onSave, onDelete }: NodeEditModalProps) {
-    const [formData, setFormData] = useState<any>({});
+    const [formData, setFormData] = useState<any>({
+        label: '',
+        description: '',
+        welcomeMessage: '',
+        inputType: 'text',
+        options: '',
+        placeholder: '',
+        required: false,
+        condition: '',
+        successMessage: '',
+        redirectUrl: '',
+    });
 
     useEffect(() => {
         if (node) {

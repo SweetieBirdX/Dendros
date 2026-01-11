@@ -116,7 +116,7 @@ export default function EdgeEditModal({ edge, isOpen, onClose, onSave, onDelete 
                         <select
                             value={formData.conditionType}
                             onChange={(e) => setFormData({ ...formData, conditionType: e.target.value })}
-                            className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            className="w-full px-4 py-2 bg-slate-800 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500 [&>option]:bg-slate-800 [&>option]:text-white"
                         >
                             <option value="always">Always (Default Path)</option>
                             <option value="exact">Exact Match</option>

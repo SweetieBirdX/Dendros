@@ -77,7 +77,6 @@ export default function EditorCanvas({ dendros, onGraphChange }: EditorCanvasPro
                 nodes: graphNodes,
                 edges: graphEdges,
             },
-            updatedAt: new Date(),
         };
 
         onGraphChange(updatedDendros);

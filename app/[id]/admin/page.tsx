@@ -61,7 +61,10 @@ export default function EditorPage() {
 
         setSaving(true);
         try {
-            await updateDendros(dendros);
+            await updateDendros(dendrosId, {
+                graph: dendros.graph,
+                config: dendros.config,
+            });
             setLastSaved(new Date());
         } catch (err) {
             alert(`Error saving: ${err}`);
@@ -82,15 +85,17 @@ export default function EditorPage() {
 
         setSaving(true);
         try {
-            const updatedDendros = {
-                ...dendros,
-                config: {
-                    ...dendros.config,
-                    published: true,
-                },
+            const updatedConfig = {
+                ...dendros.config,
+                isPublished: true,
             };
-            await updateDendros(updatedDendros);
-            setDendros(updatedDendros);
+            await updateDendros(dendrosId, {
+                config: updatedConfig,
+            });
+            setDendros({
+                ...dendros,
+                config: updatedConfig,
+            });
             setLastSaved(new Date());
             alert('✅ Published successfully!');
         } catch (err) {
@@ -169,7 +174,7 @@ export default function EditorPage() {
                         disabled={saving}
                         className="bg-green-500 hover:bg-green-600 disabled:bg-green-500/50 text-white px-4 py-2 rounded-lg transition-colors font-semibold"
                     >
-                        {dendros.config.published ? 'Published ✓' : 'Publish'}
+                        {dendros.config.isPublished ? 'Published ✓' : 'Publish'}
                     </button>
                 </div>
             </div>
