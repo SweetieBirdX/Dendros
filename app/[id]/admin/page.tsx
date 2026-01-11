@@ -164,18 +164,27 @@ export default function EditorPage() {
     const handlePublish = async () => {
         if (!dendros) return;
 
-        // Validate before publishing
-        const validation = validateGraph(dendros.graph);
-        if (!validation.isValid) {
-            alert('Cannot publish: Graph has validation errors. Please fix them first.');
-            return;
+        const isUnpublishing = dendros.config.isPublished;
+
+        // If unpublishing, ask for confirmation
+        if (isUnpublishing) {
+            if (!confirm('Are you sure you want to unpublish this Dendros? The public link will clearly stop working, but existing data will be preserved.')) {
+                return;
+            }
+        } else {
+            // Validate before publishing
+            const validation = validateGraph(dendros.graph);
+            if (!validation.isValid) {
+                alert('Cannot publish: Graph has validation errors. Please fix them first.');
+                return;
+            }
         }
 
         setSaving(true);
         try {
             const updatedConfig = {
                 ...dendros.config,
-                isPublished: true,
+                isPublished: !isUnpublishing,
             };
             await updateDendros(dendrosId, {
                 config: updatedConfig,
@@ -185,9 +194,9 @@ export default function EditorPage() {
                 config: updatedConfig,
             });
             setLastSaved(new Date());
-            alert('✅ Published successfully!');
+            alert(isUnpublishing ? '⏸️ Unpublished successfully. The public link is now paused.' : '✅ Published successfully!');
         } catch (err) {
-            alert(`Error publishing: ${err}`);
+            alert(`Error updating publish status: ${err}`);
         } finally {
             setSaving(false);
         }
@@ -310,9 +319,12 @@ export default function EditorPage() {
                     <button
                         onClick={handlePublish}
                         disabled={saving}
-                        className="bg-green-500 hover:bg-green-600 disabled:bg-green-500/50 text-white px-4 py-2 rounded-lg transition-colors font-semibold"
+                        className={`px-4 py-2 rounded-lg transition-colors font-semibold text-white ${dendros.config.isPublished
+                            ? 'bg-amber-600 hover:bg-amber-700'
+                            : 'bg-green-500 hover:bg-green-600 disabled:bg-green-500/50'
+                            }`}
                     >
-                        {dendros.config.isPublished ? 'Published ✓' : 'Publish'}
+                        {dendros.config.isPublished ? '⏸️ Unpublish' : '🚀 Publish'}
                     </button>
                 </div>
             </div>

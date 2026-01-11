@@ -113,10 +113,14 @@ export default function PublicRendererPage() {
 
     if (!dendros.config.isPublished) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-slate-900 text-white">
-                <div className="text-center">
-                    <h1 className="text-2xl font-bold mb-2 text-yellow-400">Not Available</h1>
-                    <p className="text-slate-400">This Dendros has not been published yet.</p>
+            <div className="min-h-screen flex items-center justify-center bg-slate-900 text-white p-4">
+                <div className="text-center max-w-md bg-white/10 backdrop-blur-lg p-8 rounded-2xl border border-white/10">
+                    <div className="text-4xl mb-4">⏸️</div>
+                    <h1 className="text-2xl font-bold mb-2 text-amber-400">Not Currently Accepting Responses</h1>
+                    <p className="text-slate-300">
+                        This workflow is currently paused or under maintenance.
+                        Please check back later!
+                    </p>
                 </div>
             </div>
         );
