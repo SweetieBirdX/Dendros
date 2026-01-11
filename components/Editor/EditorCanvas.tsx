@@ -222,11 +222,15 @@ export default function EditorCanvas({ dendros, onGraphChange }: EditorCanvasPro
                                 return '#d97706'; // Darker amber
                             case 'end':
                                 return '#dc2626'; // Darker red
+                            case 'info':
+                                return '#0f766e'; // Darker teal
                             default:
                                 return '#7c3aed'; // Darker purple
                         }
                     }}
-                    nodeStrokeColor="#10b981"
+                    nodeStrokeColor={(node) => {
+                        return node.type === 'info' ? '#14b8a6' : '#10b981';
+                    }}
                     nodeStrokeWidth={2}
                     maskColor="rgba(15, 23, 42, 0.7)"
                     style={{

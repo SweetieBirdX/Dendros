@@ -24,6 +24,7 @@ export default function NodeEditModal({ node, isOpen, onClose, onSave, onDelete 
         condition: '',
         successMessage: '',
         redirectUrl: '',
+        buttonText: '',
     });
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
@@ -41,6 +42,7 @@ export default function NodeEditModal({ node, isOpen, onClose, onSave, onDelete 
                 condition: (node.data as any).condition || '',
                 successMessage: (node.data as any).successMessage || '',
                 redirectUrl: (node.data as any).redirectUrl || '',
+                buttonText: (node.data as any).buttonText || '',
             });
         }
     }, [node]);
@@ -75,6 +77,8 @@ export default function NodeEditModal({ node, isOpen, onClose, onSave, onDelete 
         } else if (node.type === 'end') {
             (updatedNode.data as any).successMessage = formData.successMessage;
             (updatedNode.data as any).redirectUrl = formData.redirectUrl;
+        } else if (node.type === 'info') {
+            (updatedNode.data as any).buttonText = formData.buttonText;
         }
 
         onSave(updatedNode);
@@ -169,6 +173,7 @@ export default function NodeEditModal({ node, isOpen, onClose, onSave, onDelete 
                                     <option value="number">Number</option>
                                     <option value="multipleChoice">Multiple Choice</option>
                                     <option value="checkbox">Checkbox</option>
+                                    <option value="none">No Input (Info Only)</option>
                                 </select>
                             </div>
 
@@ -255,6 +260,21 @@ export default function NodeEditModal({ node, isOpen, onClose, onSave, onDelete 
                                 />
                             </div>
                         </>
+                    )}
+
+                    {node.type === 'info' && (
+                        <div>
+                            <label className="block text-white/80 text-sm font-semibold mb-2">
+                                Button Text
+                            </label>
+                            <input
+                                type="text"
+                                value={formData.buttonText}
+                                onChange={(e) => setFormData({ ...formData, buttonText: e.target.value })}
+                                className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                placeholder="Continue"
+                            />
+                        </div>
                     )}
                 </div>
 

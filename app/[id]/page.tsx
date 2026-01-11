@@ -9,11 +9,14 @@ import RendererLayout from '@/components/Renderer/RendererLayout';
 import { useFlowNavigation } from '@/hooks/useFlowNavigation';
 import RootStep from '@/components/Renderer/Steps/RootStep';
 import QuestionStep from '@/components/Renderer/Steps/QuestionStep';
+
 import EndStep from '@/components/Renderer/Steps/EndStep';
+import InfoStep from '@/components/Renderer/Steps/InfoStep';
 import type {
     RootNodeData,
     QuestionNodeData,
-    EndNodeData
+    EndNodeData,
+    InfoNodeData
 } from '@/types/graph';
 
 export default function PublicRendererPage() {
@@ -157,6 +160,13 @@ export default function PublicRendererPage() {
                     <EndStep
                         data={currentNode.data as EndNodeData}
                         onStartOver={handleReset}
+                    />
+                );
+            case 'info':
+                return (
+                    <InfoStep
+                        data={currentNode.data as InfoNodeData}
+                        onNext={() => next()}
                     />
                 );
             default:

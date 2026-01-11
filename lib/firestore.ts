@@ -164,6 +164,46 @@ export async function checkOwnership(dendrosId: string, userId: string): Promise
 }
 
 /**
+ * Create a new empty Dendros flow
+ */
+export async function createNewDendros(userId: string): Promise<string> {
+    const dendrosId = doc(collection(db, DENDROS_COLLECTION)).id;
+
+    // Create a minimal starter graph
+    const dendros: Omit<Dendros, 'createdAt' | 'updatedAt'> = {
+        dendrosId,
+        ownerId: userId,
+        config: {
+            title: 'Untitled Dendros',
+            slug: `untitled-${Date.now()}`,
+            description: '',
+            isPublished: false,
+        },
+        graph: {
+            nodes: [
+                {
+                    id: 'start',
+                    type: 'root',
+                    position: { x: 250, y: 50 },
+                    data: { label: 'Start' }
+                }
+            ],
+            edges: []
+        }
+    };
+
+    const docRef = doc(db, DENDROS_COLLECTION, dendrosId);
+
+    await setDoc(docRef, {
+        ...dendros,
+        createdAt: Timestamp.now(),
+        updatedAt: Timestamp.now(),
+    });
+
+    return dendrosId;
+}
+
+/**
  * Seed the database with a sample Dendros flow
  */
 export async function seedDatabase(userId: string): Promise<string> {

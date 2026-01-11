@@ -14,7 +14,7 @@
  * - logic: Conditional branching node
  * - end: Terminal node (completion screen)
  */
-export type NodeType = 'root' | 'question' | 'logic' | 'end';
+export type NodeType = 'root' | 'question' | 'logic' | 'end' | 'info';
 
 /**
  * Input types for question nodes
@@ -70,9 +70,16 @@ export interface EndNodeData extends BaseNodeData {
 }
 
 /**
+ * Data for info nodes (informational step)
+ */
+export interface InfoNodeData extends BaseNodeData {
+    buttonText?: string; // Text for the continue button (default: "Continue")
+}
+
+/**
  * Union type for all possible node data types
  */
-export type NodeData = RootNodeData | QuestionNodeData | LogicNodeData | EndNodeData;
+export type NodeData = RootNodeData | QuestionNodeData | LogicNodeData | EndNodeData | InfoNodeData;
 
 /**
  * Position of a node in the visual editor
@@ -254,4 +261,11 @@ export function isEndNode(data: NodeData): data is EndNodeData {
  */
 export function isRootNode(data: NodeData): data is RootNodeData {
     return 'welcomeMessage' in data;
+}
+
+/**
+ * Type guard to check if node data is InfoNodeData
+ */
+export function isInfoNode(data: NodeData): data is InfoNodeData {
+    return !isQuestionNode(data) && !isLogicNode(data) && !isEndNode(data) && !isRootNode(data);
 }

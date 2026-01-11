@@ -3,7 +3,7 @@
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { fetchUserDendros, deleteDendros } from '@/lib/firestore';
+import { fetchUserDendros, deleteDendros, createNewDendros } from '@/lib/firestore';
 import type { Dendros } from '@/types/graph';
 import ConfirmDialog from '@/components/Editor/ConfirmDialog';
 
@@ -14,6 +14,7 @@ export default function DashboardPage() {
     const [loadingDendros, setLoadingDendros] = useState(true);
     const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; dendrosId: string | null }>({ isOpen: false, dendrosId: null });
     const [copiedId, setCopiedId] = useState<string | null>(null);
+    const [creating, setCreating] = useState(false);
 
     useEffect(() => {
         if (!loading && !user) {
@@ -40,9 +41,18 @@ export default function DashboardPage() {
         }
     }, [user]);
 
-    const handleCreateNew = () => {
-        // Navigate to a new Dendros creation flow (to be implemented)
-        alert('Create new Dendros - Coming soon!');
+    const handleCreateNew = async () => {
+        if (!user) return;
+
+        setCreating(true);
+        try {
+            const newDendrosId = await createNewDendros(user.uid);
+            router.push(`/${newDendrosId}/admin`);
+        } catch (error) {
+            console.error('Error creating dendros:', error);
+            alert('Failed to create new Dendros. Please try again.');
+            setCreating(false);
+        }
     };
 
     const handleDeleteClick = (dendrosId: string, e: React.MouseEvent) => {
@@ -102,9 +112,10 @@ export default function DashboardPage() {
                         <div className="flex items-center gap-3">
                             <button
                                 onClick={handleCreateNew}
-                                className="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg transition-colors font-semibold"
+                                disabled={creating}
+                                className="bg-green-500 hover:bg-green-600 disabled:bg-green-500/50 text-white px-6 py-3 rounded-lg transition-colors font-semibold"
                             >
-                                + New Dendros
+                                {creating ? 'Creating...' : '+ New Dendros'}
                             </button>
                             <button
                                 onClick={signOut}

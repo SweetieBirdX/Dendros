@@ -19,6 +19,8 @@ function getNodeTypeLabel(nodeId: string, graph: DendrosGraph): string {
             return 'Question node';
         case 'logic':
             return 'Logic node';
+        case 'info':
+            return 'Info node';
         case 'end':
             return 'End node';
         default:

@@ -13,6 +13,7 @@ export default function NodePalette({ onAddNode }: NodePaletteProps) {
     const nodeTypes: { type: NodeType; label: string; icon: string; color: string }[] = [
         { type: 'root', label: 'Start', icon: '🟢', color: 'from-green-500 to-emerald-500' },
         { type: 'question', label: 'Question', icon: '🔵', color: 'from-blue-500 to-cyan-500' },
+        { type: 'info', label: 'Info', icon: 'ℹ️', color: 'from-indigo-500 to-teal-500' },
         { type: 'logic', label: 'Logic', icon: '⚡', color: 'from-yellow-500 to-amber-500' },
         { type: 'end', label: 'End', icon: '🔴', color: 'from-red-500 to-rose-500' },
     ];
