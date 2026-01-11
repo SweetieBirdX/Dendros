@@ -23,8 +23,22 @@ export default function RendererLayout({ children, title }: RendererLayoutProps)
                 </div>
             </div>
 
-            <div className="mt-8 text-white/20 text-sm">
-                Powered by Dendros
+            <div className="mt-8 text-center space-y-2">
+                <div className="text-purple-300/70 text-sm font-medium">Powered by Dendros</div>
+                <div className="text-purple-200/50 text-xs max-w-md px-4">
+                    Don't send any critical or personal information via Dendros.
+                </div>
+                <div className="text-purple-200/50 text-xs">
+                    If you see any suspicious Dendros,{' '}
+                    <a
+                        href="https://github.com/SweetieBirdX"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline hover:text-purple-200 transition-colors"
+                    >
+                        reach us!
+                    </a>
+                </div>
             </div>
         </div>
     );
