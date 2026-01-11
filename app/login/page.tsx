@@ -24,6 +24,17 @@ export default function LoginPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
+        // Manual Validation to replace browser default
+        if (!email || !password) {
+            setError('Please fill in all required fields');
+            return;
+        }
+
+        if (isSignUp && !confirmPassword) {
+            setError('Please fill in all required fields');
+            return;
+        }
+
         setIsSubmitting(true);
 
         try {
@@ -59,6 +70,9 @@ export default function LoginPage() {
                     break;
                 case 'auth/wrong-password':
                     setError('Incorrect password');
+                    break;
+                case 'auth/invalid-credential':
+                    setError('Invalid email or password');
                     break;
                 case 'auth/weak-password':
                     setError('Password is too weak');
@@ -98,8 +112,8 @@ export default function LoginPage() {
                                     setError('');
                                 }}
                                 className={`flex-1 py-2 px-4 rounded-lg font-semibold transition-all ${!isSignUp
-                                        ? 'bg-purple-500 text-white'
-                                        : 'bg-white/5 text-purple-200 hover:bg-white/10'
+                                    ? 'bg-purple-500 text-white'
+                                    : 'bg-white/5 text-purple-200 hover:bg-white/10'
                                     }`}
                             >
                                 Sign In
@@ -110,15 +124,15 @@ export default function LoginPage() {
                                     setError('');
                                 }}
                                 className={`flex-1 py-2 px-4 rounded-lg font-semibold transition-all ${isSignUp
-                                        ? 'bg-purple-500 text-white'
-                                        : 'bg-white/5 text-purple-200 hover:bg-white/10'
+                                    ? 'bg-purple-500 text-white'
+                                    : 'bg-white/5 text-purple-200 hover:bg-white/10'
                                     }`}
                             >
                                 Sign Up
                             </button>
                         </div>
 
-                        <form onSubmit={handleSubmit} className="space-y-4">
+                        <form onSubmit={handleSubmit} className="space-y-4" noValidate>
                             <div>
                                 <input
                                     type="email"
@@ -170,12 +184,25 @@ export default function LoginPage() {
                         </form>
                     </div>
 
-                    <p className="text-xs text-purple-300 pt-4">
-                        {isSignUp
-                            ? 'Create an account to start building branching narratives'
-                            : 'Sign in to manage your branching narratives'
-                        }
-                    </p>
+                    <div className="pt-6 border-t border-white/10 mt-6">
+                        <p className="text-sm text-purple-100 font-medium">
+                            {isSignUp ? (
+                                <>
+                                    🚀 <span className="ml-2">Ready to start?</span>
+                                    <span className="block text-purple-200/80 text-xs mt-1 font-normal">
+                                        Create an account to start building branching narratives
+                                    </span>
+                                </>
+                            ) : (
+                                <>
+                                    ✨ <span className="ml-2">Welcome back</span>
+                                    <span className="block text-purple-200/80 text-xs mt-1 font-normal">
+                                        Sign in to manage your branching narratives
+                                    </span>
+                                </>
+                            )}
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
