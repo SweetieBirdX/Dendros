@@ -6,6 +6,16 @@ import { fetchDendros } from '@/lib/firestore';
 import type { Dendros } from '@/types/graph';
 import RendererLayout from '@/components/Renderer/RendererLayout';
 
+import { useFlowNavigation } from '@/hooks/useFlowNavigation';
+import RootStep from '@/components/Renderer/Steps/RootStep';
+import QuestionStep from '@/components/Renderer/Steps/QuestionStep';
+import EndStep from '@/components/Renderer/Steps/EndStep';
+import type {
+    RootNodeData,
+    QuestionNodeData,
+    EndNodeData
+} from '@/types/graph';
+
 export default function PublicRendererPage() {
     const params = useParams();
     const dendrosId = params.id as string;
@@ -35,6 +45,18 @@ export default function PublicRendererPage() {
 
         loadDendros();
     }, [dendrosId]);
+
+    // Initialize flow navigation once dendros is loaded
+    const {
+        currentNode,
+        next,
+        back,
+        reset,
+        canGoBack,
+        answers
+    } = useFlowNavigation({
+        graph: dendros?.graph || { nodes: [], edges: [] }
+    });
 
     if (loading) {
         return (
@@ -68,14 +90,60 @@ export default function PublicRendererPage() {
         );
     }
 
+    const renderCurrentStep = () => {
+        if (!currentNode) {
+            return (
+                <div className="text-center text-red-400">
+                    <p>Something went wrong. Could not find the next step.</p>
+                    <button
+                        onClick={reset}
+                        className="mt-4 text-sm text-slate-400 hover:text-white underline"
+                    >
+                        Reset Flow
+                    </button>
+                </div>
+            );
+        }
+
+        switch (currentNode.type) {
+            case 'root':
+                return (
+                    <RootStep
+                        data={currentNode.data as RootNodeData}
+                        onNext={() => next()}
+                    />
+                );
+            case 'question':
+                return (
+                    <QuestionStep
+                        key={currentNode.id} // Force re-render on node change
+                        data={currentNode.data as QuestionNodeData}
+                        onNext={(answer) => next(answer)}
+                        onBack={canGoBack ? back : undefined}
+                        initialValue={answers[currentNode.id]}
+                    />
+                );
+            case 'end':
+                return (
+                    <EndStep
+                        data={currentNode.data as EndNodeData}
+                        onStartOver={reset}
+                    />
+                );
+            default:
+                // Logic nodes should be auto-skipped by useFlowNavigation, so this shouldn't render usually
+                return (
+                    <div className="text-center text-red-400">
+                        Processing...
+                    </div>
+                );
+        }
+    };
+
     return (
         <RendererLayout title={dendros.config.title}>
-            <div className="text-center">
-                <p className="text-slate-300 mb-8">{dendros.config.description}</p>
-                <div className="p-4 bg-white/5 rounded-lg border border-white/10">
-                    <p className="text-sm text-slate-400">Flow Renderer Content Will Go Here</p>
-                    <p className="text-xs text-slate-500 mt-2">Node Count: {dendros.graph.nodes.length}</p>
-                </div>
+            <div className="w-full">
+                {renderCurrentStep()}
             </div>
         </RendererLayout>
     );
