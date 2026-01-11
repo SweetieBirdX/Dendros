@@ -13,9 +13,10 @@ import {
     type Node,
     type Edge,
     type OnConnect,
+    type NodeTypes,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import type { Dendros, GraphNode, GraphEdge, NodeType } from '@/types/graph';
+import type { Dendros, GraphNode, GraphEdge, NodeType, NodeData, EdgeCondition } from '@/types/graph';
 import { nodeTypes } from '@/components/Editor/Nodes';
 import { edgeTypes } from '@/components/Editor/Edges';
 import NodePalette from '@/components/Editor/NodePalette';
@@ -59,7 +60,7 @@ export default function EditorCanvas({ dendros, onGraphChange }: EditorCanvasPro
         const graphNodes: GraphNode[] = updatedNodes.map(node => ({
             id: node.id,
             type: node.type as NodeType,
-            data: node.data,
+            data: node.data as unknown as NodeData,
             position: node.position,
         }));
 
@@ -68,7 +69,7 @@ export default function EditorCanvas({ dendros, onGraphChange }: EditorCanvasPro
             source: edge.source,
             target: edge.target,
             label: edge.label as string || '',
-            condition: edge.data || { type: 'always' },
+            condition: (edge.data as unknown as EdgeCondition) || { type: 'always' },
         }));
 
         const updatedDendros: Dendros = {
@@ -91,7 +92,7 @@ export default function EditorCanvas({ dendros, onGraphChange }: EditorCanvasPro
             };
             const updatedEdges = addEdge(newEdge, edges);
             setEdges(updatedEdges);
-            notifyGraphChange(nodes, updatedEdges);
+            notifyGraphChange(nodes, updatedEdges as Edge[]);
         },
         [setEdges, edges, nodes, notifyGraphChange]
     );
@@ -118,7 +119,7 @@ export default function EditorCanvas({ dendros, onGraphChange }: EditorCanvasPro
         const graphNode: GraphNode = {
             id: node.id,
             type: node.type as NodeType,
-            data: node.data,
+            data: node.data as unknown as NodeData,
             position: node.position,
         };
         setSelectedNode(graphNode);
@@ -132,7 +133,7 @@ export default function EditorCanvas({ dendros, onGraphChange }: EditorCanvasPro
             source: edge.source,
             target: edge.target,
             label: edge.label as string || '',
-            condition: edge.data || { type: 'always' },
+            condition: edge.data as unknown as EdgeCondition || { type: 'always' },
         };
         setSelectedEdge(graphEdge);
         setIsEdgeModalOpen(true);
@@ -193,8 +194,8 @@ export default function EditorCanvas({ dendros, onGraphChange }: EditorCanvasPro
                 onConnect={onConnect}
                 onNodeDoubleClick={handleNodeDoubleClick}
                 onEdgeClick={handleEdgeClick}
-                nodeTypes={nodeTypes}
-                edgeTypes={edgeTypes}
+                nodeTypes={nodeTypes as unknown as NodeTypes}
+                edgeTypes={edgeTypes as any}
                 fitView
                 className="bg-slate-950"
             >

@@ -27,6 +27,7 @@ export type QuestionInputType = 'text' | 'email' | 'number' | 'multipleChoice' |
 export interface BaseNodeData {
     label: string;
     description?: string;
+    [key: string]: unknown;
 }
 
 /**
@@ -112,6 +113,7 @@ export interface EdgeCondition {
     type: EdgeConditionType;
     value?: string | number | [number, number]; // Single value or range
     pattern?: string; // For regex
+    [key: string]: unknown;
 }
 
 /**
