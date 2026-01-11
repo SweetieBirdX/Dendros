@@ -24,7 +24,7 @@ import EdgeEditModal from '@/components/Editor/EdgeEditModal';
 
 interface EditorCanvasProps {
     dendros: Dendros;
-    onGraphChange?: (nodes: GraphNode[], edges: GraphEdge[]) => void;
+    onGraphChange?: (updatedDendros: Dendros) => void;
 }
 
 export default function EditorCanvas({ dendros, onGraphChange }: EditorCanvasProps) {
@@ -52,6 +52,37 @@ export default function EditorCanvas({ dendros, onGraphChange }: EditorCanvasPro
     const [nodes, setNodes, onNodesChange] = useNodesState<Node>(initialNodes);
     const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>(initialEdges);
 
+    // Helper to notify parent of changes
+    const notifyGraphChange = useCallback((updatedNodes: Node[], updatedEdges: Edge[]) => {
+        if (!onGraphChange) return;
+
+        const graphNodes: GraphNode[] = updatedNodes.map(node => ({
+            id: node.id,
+            type: node.type as NodeType,
+            data: node.data,
+            position: node.position,
+        }));
+
+        const graphEdges: GraphEdge[] = updatedEdges.map(edge => ({
+            id: edge.id,
+            source: edge.source,
+            target: edge.target,
+            label: edge.label as string || '',
+            condition: edge.data || { type: 'always' },
+        }));
+
+        const updatedDendros: Dendros = {
+            ...dendros,
+            graph: {
+                nodes: graphNodes,
+                edges: graphEdges,
+            },
+            updatedAt: new Date(),
+        };
+
+        onGraphChange(updatedDendros);
+    }, [dendros, onGraphChange]);
+
     const onConnect: OnConnect = useCallback(
         (connection) => {
             const newEdge = {
@@ -59,9 +90,11 @@ export default function EditorCanvas({ dendros, onGraphChange }: EditorCanvasPro
                 id: `edge_${Date.now()}`,
                 label: 'New Connection',
             };
-            setEdges((eds) => addEdge(newEdge, eds));
+            const updatedEdges = addEdge(newEdge, edges);
+            setEdges(updatedEdges);
+            notifyGraphChange(nodes, updatedEdges);
         },
-        [setEdges]
+        [setEdges, edges, nodes, notifyGraphChange]
     );
 
     // Add new node
@@ -76,8 +109,10 @@ export default function EditorCanvas({ dendros, onGraphChange }: EditorCanvasPro
             },
         };
 
-        setNodes((nds) => [...nds, newNode]);
-    }, [setNodes]);
+        const updatedNodes = [...nodes, newNode];
+        setNodes(updatedNodes);
+        notifyGraphChange(updatedNodes, edges);
+    }, [setNodes, nodes, edges, notifyGraphChange]);
 
     // Open node edit modal on double-click
     const handleNodeDoubleClick = useCallback((_event: any, node: Node) => {
@@ -97,7 +132,7 @@ export default function EditorCanvas({ dendros, onGraphChange }: EditorCanvasPro
             id: edge.id,
             source: edge.source,
             target: edge.target,
-            label: edge.label as string,
+            label: edge.label as string || '',
             condition: edge.data || { type: 'always' },
         };
         setSelectedEdge(graphEdge);
@@ -106,43 +141,48 @@ export default function EditorCanvas({ dendros, onGraphChange }: EditorCanvasPro
 
     // Save edited node
     const handleSaveNode = useCallback((updatedNode: GraphNode) => {
-        setNodes((nds) =>
-            nds.map((n) =>
-                n.id === updatedNode.id
-                    ? {
-                        ...n,
-                        data: updatedNode.data,
-                    }
-                    : n
-            )
+        const updatedNodes = nodes.map((n) =>
+            n.id === updatedNode.id
+                ? {
+                    ...n,
+                    data: updatedNode.data,
+                }
+                : n
         );
-    }, [setNodes]);
+        setNodes(updatedNodes);
+        notifyGraphChange(updatedNodes, edges);
+    }, [setNodes, nodes, edges, notifyGraphChange]);
 
     // Save edited edge
     const handleSaveEdge = useCallback((updatedEdge: GraphEdge) => {
-        setEdges((eds) =>
-            eds.map((e) =>
-                e.id === updatedEdge.id
-                    ? {
-                        ...e,
-                        label: updatedEdge.label,
-                        data: updatedEdge.condition,
-                    }
-                    : e
-            )
+        const updatedEdges = edges.map((e) =>
+            e.id === updatedEdge.id
+                ? {
+                    ...e,
+                    label: updatedEdge.label,
+                    data: updatedEdge.condition,
+                }
+                : e
         );
-    }, [setEdges]);
+        setEdges(updatedEdges);
+        notifyGraphChange(nodes, updatedEdges);
+    }, [setEdges, edges, nodes, notifyGraphChange]);
 
     // Delete node
     const handleDeleteNode = useCallback((nodeId: string) => {
-        setNodes((nds) => nds.filter((n) => n.id !== nodeId));
-        setEdges((eds) => eds.filter((e) => e.source !== nodeId && e.target !== nodeId));
-    }, [setNodes, setEdges]);
+        const updatedNodes = nodes.filter((n) => n.id !== nodeId);
+        const updatedEdges = edges.filter((e) => e.source !== nodeId && e.target !== nodeId);
+        setNodes(updatedNodes);
+        setEdges(updatedEdges);
+        notifyGraphChange(updatedNodes, updatedEdges);
+    }, [setNodes, setEdges, nodes, edges, notifyGraphChange]);
 
     // Delete edge
     const handleDeleteEdge = useCallback((edgeId: string) => {
-        setEdges((eds) => eds.filter((e) => e.id !== edgeId));
-    }, [setEdges]);
+        const updatedEdges = edges.filter((e) => e.id !== edgeId);
+        setEdges(updatedEdges);
+        notifyGraphChange(nodes, updatedEdges);
+    }, [setEdges, edges, nodes, notifyGraphChange]);
 
     return (
         <div className="w-full h-full relative">

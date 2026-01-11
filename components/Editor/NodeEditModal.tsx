@@ -146,7 +146,7 @@ export default function NodeEditModal({ node, isOpen, onClose, onSave, onDelete 
                                 <select
                                     value={formData.inputType}
                                     onChange={(e) => setFormData({ ...formData, inputType: e.target.value })}
-                                    className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                    className="w-full px-4 py-2 bg-slate-800 border border-white/20 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500 [&>option]:bg-slate-800 [&>option]:text-white"
                                 >
                                     <option value="text">Text</option>
                                     <option value="email">Email</option>
@@ -189,7 +189,7 @@ export default function NodeEditModal({ node, isOpen, onClose, onSave, onDelete 
                                     type="checkbox"
                                     checked={formData.required}
                                     onChange={(e) => setFormData({ ...formData, required: e.target.checked })}
-                                    className="w-4 h-4"
+                                    className="w-4 h-4 accent-purple-500"
                                 />
                                 <label className="text-white/80 text-sm">Required field</label>
                             </div>

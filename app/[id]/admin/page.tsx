@@ -3,9 +3,11 @@
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useEffect, useState } from 'react';
-import { fetchDendros, checkOwnership } from '@/lib/firestore';
+import { fetchDendros, checkOwnership, updateDendros } from '@/lib/firestore';
+import { validateGraph } from '@/lib/graphValidator';
 import type { Dendros } from '@/types/graph';
 import EditorCanvas from '@/components/Editor/EditorCanvas';
+import ValidationOverlay from '@/components/Editor/ValidationOverlay';
 
 export default function EditorPage() {
     const params = useParams();
@@ -14,6 +16,8 @@ export default function EditorPage() {
     const [dendros, setDendros] = useState<Dendros | null>(null);
     const [loadingDendros, setLoadingDendros] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [saving, setSaving] = useState(false);
+    const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
     const dendrosId = params.id as string;
 
@@ -51,6 +55,54 @@ export default function EditorPage() {
             loadDendros();
         }
     }, [user, loading, dendrosId, router]);
+
+    const handleSave = async () => {
+        if (!dendros) return;
+
+        setSaving(true);
+        try {
+            await updateDendros(dendros);
+            setLastSaved(new Date());
+        } catch (err) {
+            alert(`Error saving: ${err}`);
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handlePublish = async () => {
+        if (!dendros) return;
+
+        // Validate before publishing
+        const validation = validateGraph(dendros.graph);
+        if (!validation.isValid) {
+            alert('Cannot publish: Graph has validation errors. Please fix them first.');
+            return;
+        }
+
+        setSaving(true);
+        try {
+            const updatedDendros = {
+                ...dendros,
+                config: {
+                    ...dendros.config,
+                    published: true,
+                },
+            };
+            await updateDendros(updatedDendros);
+            setDendros(updatedDendros);
+            setLastSaved(new Date());
+            alert('✅ Published successfully!');
+        } catch (err) {
+            alert(`Error publishing: ${err}`);
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleGraphChange = (updatedDendros: Dendros) => {
+        setDendros(updatedDendros);
+    };
 
     if (loading || loadingDendros) {
         return (
@@ -94,22 +146,38 @@ export default function EditorPage() {
                     </button>
                     <div>
                         <h1 className="text-white text-xl font-bold">{dendros.config.title}</h1>
-                        <p className="text-purple-300 text-sm">{dendros.config.description}</p>
+                        <div className="flex items-center gap-3 text-sm">
+                            <p className="text-purple-300">{dendros.config.description}</p>
+                            {lastSaved && (
+                                <span className="text-green-300">
+                                    ✓ Saved {lastSaved.toLocaleTimeString()}
+                                </span>
+                            )}
+                        </div>
                     </div>
                 </div>
                 <div className="flex items-center gap-3">
-                    <button className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg transition-colors font-semibold">
-                        Save
+                    <button
+                        onClick={handleSave}
+                        disabled={saving}
+                        className="bg-purple-500 hover:bg-purple-600 disabled:bg-purple-500/50 text-white px-4 py-2 rounded-lg transition-colors font-semibold"
+                    >
+                        {saving ? 'Saving...' : 'Save'}
                     </button>
-                    <button className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors font-semibold">
-                        Publish
+                    <button
+                        onClick={handlePublish}
+                        disabled={saving}
+                        className="bg-green-500 hover:bg-green-600 disabled:bg-green-500/50 text-white px-4 py-2 rounded-lg transition-colors font-semibold"
+                    >
+                        {dendros.config.published ? 'Published ✓' : 'Publish'}
                     </button>
                 </div>
             </div>
 
             {/* Editor Canvas */}
-            <div className="flex-1">
-                <EditorCanvas dendros={dendros} />
+            <div className="flex-1 relative">
+                <EditorCanvas dendros={dendros} onGraphChange={handleGraphChange} />
+                <ValidationOverlay graph={dendros.graph} />
             </div>
         </div>
     );
