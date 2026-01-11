@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { fetchDendros } from '@/lib/firestore';
+import { fetchDendros, submitResponse } from '@/lib/firestore';
 import type { Dendros } from '@/types/graph';
 import RendererLayout from '@/components/Renderer/RendererLayout';
 
@@ -23,6 +23,7 @@ export default function PublicRendererPage() {
     const [dendros, setDendros] = useState<Dendros | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [hasSubmitted, setHasSubmitted] = useState(false);
 
     useEffect(() => {
         async function loadDendros() {
@@ -53,10 +54,38 @@ export default function PublicRendererPage() {
         back,
         reset,
         canGoBack,
-        answers
+        answers,
+        path
     } = useFlowNavigation({
         graph: dendros?.graph || { nodes: [], edges: [] }
     });
+
+    // Handle submission when reaching End node
+    useEffect(() => {
+        async function handleSubmission() {
+            if (currentNode?.type === 'end' && !hasSubmitted && dendros) {
+                setHasSubmitted(true);
+                try {
+                    await submitResponse(dendros.dendrosId, {
+                        dendrosId: dendros.dendrosId,
+                        path: path,
+                        completedAt: new Date(),
+                    });
+                    console.log('Response submitted successfully');
+                } catch (err) {
+                    console.error('Failed to submit response:', err);
+                }
+            }
+        }
+
+        handleSubmission();
+    }, [currentNode, hasSubmitted, dendros, path]);
+
+    // Reset submission state when resetting flow
+    const handleReset = () => {
+        setHasSubmitted(false);
+        reset();
+    };
 
     if (loading) {
         return (
@@ -96,7 +125,7 @@ export default function PublicRendererPage() {
                 <div className="text-center text-red-400">
                     <p>Something went wrong. Could not find the next step.</p>
                     <button
-                        onClick={reset}
+                        onClick={handleReset}
                         className="mt-4 text-sm text-slate-400 hover:text-white underline"
                     >
                         Reset Flow
@@ -127,7 +156,7 @@ export default function PublicRendererPage() {
                 return (
                     <EndStep
                         data={currentNode.data as EndNodeData}
-                        onStartOver={reset}
+                        onStartOver={handleReset}
                     />
                 );
             default:

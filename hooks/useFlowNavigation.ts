@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { getNextNode } from '@/lib/graphWalker';
-import type { DendrosGraph, GraphNode, UserAnswer } from '@/types/graph';
+import type { DendrosGraph, GraphNode, UserAnswer, UserPath } from '@/types/graph';
 
 interface UseFlowNavigationProps {
     graph: DendrosGraph;
@@ -12,6 +12,7 @@ export function useFlowNavigation({ graph }: UseFlowNavigationProps) {
 
     const [currentNode, setCurrentNode] = useState<GraphNode | undefined>(getRootNode);
     const [history, setHistory] = useState<string[]>([]); // Stack of previous node IDs
+    const [path, setPath] = useState<UserPath[]>([]); // Full journey for submission
     const [answers, setAnswers] = useState<Record<string, UserAnswer>>({});
 
     // Initialize/Sync when graph loads
@@ -26,6 +27,7 @@ export function useFlowNavigation({ graph }: UseFlowNavigationProps) {
     const reset = useCallback(() => {
         setCurrentNode(getRootNode());
         setHistory([]);
+        setPath([]);
         setAnswers({});
     }, [getRootNode]);
 
@@ -41,8 +43,16 @@ export function useFlowNavigation({ graph }: UseFlowNavigationProps) {
             }));
         }
 
-        // Add current node to history
+        // Add current node to history and path
         setHistory(prev => [...prev, currentNode.id]);
+        setPath(prev => [
+            ...prev,
+            {
+                nodeId: currentNode.id,
+                answer: answer,
+                timestamp: new Date(),
+            }
+        ]);
 
         // Calculate next node using graph walker
         let nextResult = getNextNode(currentNode.id, answer || answers[currentNode.id], graph);
@@ -85,6 +95,9 @@ export function useFlowNavigation({ graph }: UseFlowNavigationProps) {
         const prevNodeId = newHistory.pop();
         setHistory(newHistory);
 
+        // Update path (remove last entry)
+        setPath(prev => prev.slice(0, -1));
+
         if (prevNodeId) {
             const prevNode = graph.nodes.find(n => n.id === prevNodeId);
             setCurrentNode(prevNode);
@@ -97,6 +110,7 @@ export function useFlowNavigation({ graph }: UseFlowNavigationProps) {
         next,
         back,
         reset,
+        path,
         canGoBack: history.length > 0
     };
 }

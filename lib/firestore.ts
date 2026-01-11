@@ -8,11 +8,12 @@ import {
     query,
     where,
     getDocs,
-    Timestamp
+    Timestamp,
+    addDoc
 } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
-import type { Dendros } from '@/types/graph';
-import { validateGraph, quickValidate } from '@/lib/graphValidator';
+import type { Dendros, Submission, RootNodeData, QuestionNodeData, EndNodeData } from '@/types/graph';
+import { validateGraph } from '@/lib/graphValidator';
 
 const DENDROS_COLLECTION = 'dendros';
 
@@ -95,261 +96,86 @@ export async function updateDendros(dendrosId: string, updates: Partial<Dendros>
 }
 
 /**
- * Update an existing Dendros document with validation
- * If updating the graph, validates it before saving
+ * Submit a flow response
  */
-export async function updateDendrosWithValidation(
-    dendrosId: string,
-    updates: Partial<Dendros>
-): Promise<{ success: boolean; error?: string }> {
-    // If updating the graph, validate it
-    if (updates.graph) {
-        const validation = validateGraph(updates.graph);
-
-        if (!validation.isValid) {
-            const errorMessages = validation.errors.map(e => e.message).join('; ');
-            return {
-                success: false,
-                error: `Graph validation failed: ${errorMessages}`,
-            };
-        }
-    }
-
-    try {
-        await updateDendros(dendrosId, updates);
-        return { success: true };
-    } catch (error) {
-        return {
-            success: false,
-            error: `Firestore error: ${error}`,
-        };
-    }
-}
-
-/**
- * Delete a Dendros document
- */
-export async function deleteDendros(dendrosId: string): Promise<void> {
+export async function submitResponse(dendrosId: string, submission: Omit<Submission, 'submissionId'>): Promise<string> {
     const dendrosRef = doc(db, DENDROS_COLLECTION, dendrosId);
-    await deleteDoc(dendrosRef);
-}
+    const submissionsRef = collection(dendrosRef, 'submissions');
 
-/**
- * Fetch all Dendros documents owned by a specific user
- */
-export async function fetchUserDendros(ownerId: string): Promise<Dendros[]> {
-    const dendrosQuery = query(
-        collection(db, DENDROS_COLLECTION),
-        where('ownerId', '==', ownerId)
-    );
-
-    const querySnapshot = await getDocs(dendrosQuery);
-
-    return querySnapshot.docs.map(doc => {
-        const data = doc.data();
-        return {
-            ...data,
-            createdAt: data.createdAt?.toDate(),
-            updatedAt: data.updatedAt?.toDate(),
-        } as Dendros;
+    const docRef = await addDoc(submissionsRef, {
+        ...submission,
+        completedAt: Timestamp.fromDate(submission.completedAt),
     });
+
+    return docRef.id;
 }
 
 /**
- * Check if a user owns a specific Dendros document
+ * Check if a user is the owner of a Dendros document
  */
 export async function checkOwnership(dendrosId: string, userId: string): Promise<boolean> {
     const dendros = await fetchDendros(dendrosId);
-    return dendros?.ownerId === userId;
+    if (!dendros) return false;
+    return dendros.ownerId === userId;
 }
 
 /**
- * Seed the database with a sample Dendros document for testing
+ * Seed the database with a sample Dendros flow
  */
-export async function seedDatabase(ownerId: string): Promise<string> {
-    const sampleDendrosId = `dndr_${Date.now()}`;
+export async function seedDatabase(userId: string): Promise<string> {
+    // Generate a random ID (simple approach as we don't have uuid lib)
+    const dendrosId = doc(collection(db, DENDROS_COLLECTION)).id;
 
-    const sampleDendros: Omit<Dendros, 'createdAt' | 'updatedAt'> = {
-        dendrosId: sampleDendrosId,
-        ownerId: ownerId,
+    const dendros: Omit<Dendros, 'createdAt' | 'updatedAt'> = {
+        dendrosId,
+        ownerId: userId,
         config: {
-            title: 'Sample Onboarding Flow',
-            slug: 'sample-onboarding',
-            description: 'A sample branching narrative for testing',
+            title: 'My First Flow',
+            slug: 'my-first-flow',
+            description: 'A sample flow to get you started',
+            isPublished: false,
         },
         graph: {
             nodes: [
-                {
-                    id: 'n1',
-                    type: 'root',
-                    data: {
-                        label: 'Welcome! Are you a Developer?',
-                        welcomeMessage: 'Welcome to our onboarding flow!',
-                    },
-                    position: { x: 250, y: 0 },
-                },
-                {
-                    id: 'n2',
-                    type: 'question',
-                    data: {
-                        label: 'What is your GitHub username?',
-                        inputType: 'text',
-                        placeholder: 'Enter your GitHub username',
-                        required: true,
-                    },
-                    position: { x: 100, y: 150 },
-                },
-                {
-                    id: 'n3',
-                    type: 'question',
-                    data: {
-                        label: 'What interests you most?',
-                        inputType: 'multipleChoice',
-                        options: ['Design', 'Marketing', 'Business'],
-                        required: true,
-                    },
-                    position: { x: 400, y: 150 },
-                },
-                {
-                    id: 'n4',
-                    type: 'end',
-                    data: {
-                        label: 'Thank you! Your application has been submitted.',
-                        successMessage: 'We will review your application and get back to you soon!',
-                    },
-                    position: { x: 250, y: 300 },
-                },
+                { id: '1', type: 'root', position: { x: 100, y: 100 }, data: { label: 'Start', welcomeMessage: 'Welcome to your first flow!' } as RootNodeData },
+                { id: '2', type: 'question', position: { x: 100, y: 300 }, data: { label: 'What is your name?', inputType: 'text', required: true, placeholder: 'Enter your name' } as QuestionNodeData },
+                { id: '3', type: 'end', position: { x: 100, y: 500 }, data: { label: 'End', successMessage: 'Thanks for participating!' } as EndNodeData },
             ],
             edges: [
-                {
-                    id: 'e1-2',
-                    source: 'n1',
-                    target: 'n2',
-                    condition: {
-                        type: 'exact',
-                        value: 'Yes',
-                    },
-                    label: 'Developer Path',
-                },
-                {
-                    id: 'e1-3',
-                    source: 'n1',
-                    target: 'n3',
-                    condition: {
-                        type: 'exact',
-                        value: 'No',
-                    },
-                    label: 'Non-Developer Path',
-                },
-                {
-                    id: 'e2-4',
-                    source: 'n2',
-                    target: 'n4',
-                },
-                {
-                    id: 'e3-4',
-                    source: 'n3',
-                    target: 'n4',
-                },
-            ],
-        },
+                { id: 'e1', source: '1', target: '2', condition: { type: 'always' } },
+                { id: 'e2', source: '2', target: '3', condition: { type: 'always' } },
+            ]
+        }
     };
 
-    await createDendros(sampleDendros);
-    return sampleDendrosId;
+    await createDendros(dendros);
+    return dendrosId;
 }
 
 /**
- * Seed database with validation (safe version)
+ * Seed the database with a validated sample flow
  */
-export async function seedDatabaseWithValidation(ownerId: string): Promise<{ success: boolean; dendrosId?: string; error?: string }> {
-    const sampleDendrosId = `dndr_${Date.now()}`;
+export async function seedDatabaseWithValidation(userId: string): Promise<{ success: boolean; error?: string; dendrosId?: string }> {
+    const dendrosId = doc(collection(db, DENDROS_COLLECTION)).id;
 
-    const sampleDendros: Omit<Dendros, 'createdAt' | 'updatedAt'> = {
-        dendrosId: sampleDendrosId,
-        ownerId: ownerId,
+    const dendros: Omit<Dendros, 'createdAt' | 'updatedAt'> = {
+        dendrosId,
+        ownerId: userId,
         config: {
-            title: 'Sample Onboarding Flow (Validated)',
-            slug: 'sample-onboarding-validated',
-            description: 'A validated sample branching narrative',
+            title: 'My Validated Flow',
+            slug: 'my-validated-flow',
+            description: 'A sample flow checked by validation',
+            isPublished: false,
         },
         graph: {
             nodes: [
-                {
-                    id: 'n1',
-                    type: 'root',
-                    data: {
-                        label: 'Welcome! Are you a Developer?',
-                        welcomeMessage: 'Welcome to our onboarding flow!',
-                    },
-                    position: { x: 250, y: 0 },
-                },
-                {
-                    id: 'n2',
-                    type: 'question',
-                    data: {
-                        label: 'What is your GitHub username?',
-                        inputType: 'text',
-                        placeholder: 'Enter your GitHub username',
-                        required: true,
-                    },
-                    position: { x: 100, y: 150 },
-                },
-                {
-                    id: 'n3',
-                    type: 'question',
-                    data: {
-                        label: 'What interests you most?',
-                        inputType: 'multipleChoice',
-                        options: ['Design', 'Marketing', 'Business'],
-                        required: true,
-                    },
-                    position: { x: 400, y: 150 },
-                },
-                {
-                    id: 'n4',
-                    type: 'end',
-                    data: {
-                        label: 'Thank you! Your application has been submitted.',
-                        successMessage: 'We will review your application and get back to you soon!',
-                    },
-                    position: { x: 250, y: 300 },
-                },
+                { id: '1', type: 'root', position: { x: 100, y: 100 }, data: { label: 'Start', welcomeMessage: 'Validation Test Flow' } as RootNodeData },
+                { id: '2', type: 'end', position: { x: 100, y: 300 }, data: { label: 'End', successMessage: 'Validation Successful.' } as EndNodeData },
             ],
             edges: [
-                {
-                    id: 'e1-2',
-                    source: 'n1',
-                    target: 'n2',
-                    condition: {
-                        type: 'exact',
-                        value: 'Yes',
-                    },
-                    label: 'Developer Path',
-                },
-                {
-                    id: 'e1-3',
-                    source: 'n1',
-                    target: 'n3',
-                    condition: {
-                        type: 'exact',
-                        value: 'No',
-                    },
-                    label: 'Non-Developer Path',
-                },
-                {
-                    id: 'e2-4',
-                    source: 'n2',
-                    target: 'n4',
-                },
-                {
-                    id: 'e3-4',
-                    source: 'n3',
-                    target: 'n4',
-                },
-            ],
-        },
+                { id: 'e1', source: '1', target: '2', condition: { type: 'always' } },
+            ]
+        }
     };
-
-    return await createDendrosWithValidation(sampleDendros);
+    return await createDendrosWithValidation(dendros);
 }
