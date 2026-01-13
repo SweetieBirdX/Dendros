@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useState, useEffect, useRef } from 'react';
+import { useCallback, useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
 import {
     ReactFlow,
     ReactFlowProvider,
@@ -29,13 +29,21 @@ import ConfirmDialog from '@/components/Editor/ConfirmDialog';
 import InlineEdgeLabelEditor from '@/components/Editor/InlineEdgeLabelEditor';
 
 
+
+export interface EditorCanvasHandle {
+    undo: () => void;
+    redo: () => void;
+    canUndo: () => boolean;
+    canRedo: () => boolean;
+}
+
 interface EditorCanvasProps {
     dendros: Dendros;
     onGraphChange?: (updatedDendros: Dendros) => void;
 }
 
 // Inner component that uses useReactFlow hook
-function EditorCanvasInner({ dendros, onGraphChange }: EditorCanvasProps) {
+const EditorCanvasInner = forwardRef<EditorCanvasHandle, EditorCanvasProps>(({ dendros, onGraphChange }, ref) => {
     const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
     const [selectedEdge, setSelectedEdge] = useState<GraphEdge | null>(null);
     const [isNodeModalOpen, setIsNodeModalOpen] = useState(false);
@@ -52,6 +60,11 @@ function EditorCanvasInner({ dendros, onGraphChange }: EditorCanvasProps) {
 
     // Inline edge label editing
     const [inlineEdgeEdit, setInlineEdgeEdit] = useState<{ edgeId: string; position: { x: number; y: number }; label: string } | null>(null);
+
+    // Undo/Redo history (session-based, cleared on refresh)
+    const [history, setHistory] = useState<{ nodes: Node[]; edges: Edge[] }[]>([]);
+    const [historyIndex, setHistoryIndex] = useState(-1);
+    const isUndoRedoAction = useRef(false);
 
     // Convert Dendros graph to React Flow format
     const initialNodes: Node[] = dendros.graph.nodes.map(node => ({
@@ -71,6 +84,12 @@ function EditorCanvasInner({ dendros, onGraphChange }: EditorCanvasProps) {
 
     const [nodes, setNodes, onNodesChange] = useNodesState<Node>(initialNodes);
     const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>(initialEdges);
+
+    // Initialize history with initial state
+    useEffect(() => {
+        setHistory([{ nodes: initialNodes, edges: initialEdges }]);
+        setHistoryIndex(0);
+    }, []); // Only run once on mount
 
     // Helper to notify parent of changes
     const notifyGraphChange = useCallback((updatedNodes: Node[], updatedEdges: Edge[]) => {
@@ -102,6 +121,58 @@ function EditorCanvasInner({ dendros, onGraphChange }: EditorCanvasProps) {
         onGraphChange(updatedDendros);
     }, [dendros, onGraphChange]);
 
+    // Save current state to history
+    const saveToHistory = useCallback((currentNodes: Node[], currentEdges: Edge[]) => {
+        if (isUndoRedoAction.current) {
+            isUndoRedoAction.current = false;
+            return;
+        }
+
+        setHistory(prev => {
+            const newHistory = prev.slice(0, historyIndex + 1);
+            newHistory.push({ nodes: currentNodes, edges: currentEdges });
+            // Limit history to 50 states
+            if (newHistory.length > 50) {
+                newHistory.shift();
+                return newHistory;
+            }
+            return newHistory;
+        });
+        setHistoryIndex(prev => Math.min(prev + 1, 49));
+    }, [historyIndex]);
+
+    // Undo function
+    const handleUndo = useCallback(() => {
+        if (historyIndex <= 0) return;
+
+        isUndoRedoAction.current = true;
+        const previousState = history[historyIndex - 1];
+        setNodes(previousState.nodes);
+        setEdges(previousState.edges);
+        notifyGraphChange(previousState.nodes, previousState.edges);
+        setHistoryIndex(prev => prev - 1);
+    }, [historyIndex, history, setNodes, setEdges, notifyGraphChange]);
+
+    // Redo function
+    const handleRedo = useCallback(() => {
+        if (historyIndex >= history.length - 1) return;
+
+        isUndoRedoAction.current = true;
+        const nextState = history[historyIndex + 1];
+        setNodes(nextState.nodes);
+        setEdges(nextState.edges);
+        notifyGraphChange(nextState.nodes, nextState.edges);
+        setHistoryIndex(prev => prev + 1);
+    }, [historyIndex, history, setNodes, setEdges, notifyGraphChange]);
+
+    // Expose undo/redo functions to parent component
+    useImperativeHandle(ref, () => ({
+        undo: handleUndo,
+        redo: handleRedo,
+        canUndo: () => historyIndex > 0,
+        canRedo: () => historyIndex < history.length - 1,
+    }), [handleUndo, handleRedo, historyIndex, history]);
+
     const onConnect: OnConnect = useCallback(
         (connection) => {
             const newEdge = {
@@ -111,9 +182,10 @@ function EditorCanvasInner({ dendros, onGraphChange }: EditorCanvasProps) {
             };
             const updatedEdges = addEdge(newEdge, edges as any);
             setEdges(updatedEdges);
+            saveToHistory(nodes, updatedEdges);
             notifyGraphChange(nodes, updatedEdges as any);
         },
-        [setEdges, edges, nodes, notifyGraphChange]
+        [setEdges, edges, nodes, notifyGraphChange, saveToHistory]
     );
 
     // Add new node (with optional position)
@@ -130,8 +202,9 @@ function EditorCanvasInner({ dendros, onGraphChange }: EditorCanvasProps) {
 
         const updatedNodes = [...nodes, newNode];
         setNodes(updatedNodes);
+        saveToHistory(updatedNodes, edges);
         notifyGraphChange(updatedNodes, edges);
-    }, [setNodes, nodes, edges, notifyGraphChange]);
+    }, [setNodes, nodes, edges, notifyGraphChange, saveToHistory]);
 
     // Open node edit modal on double-click
     const handleNodeDoubleClick = useCallback((_event: any, node: Node) => {
@@ -198,8 +271,9 @@ function EditorCanvasInner({ dendros, onGraphChange }: EditorCanvasProps) {
                 : n
         );
         setNodes(updatedNodes);
+        saveToHistory(updatedNodes, edges);
         notifyGraphChange(updatedNodes, edges);
-    }, [setNodes, nodes, edges, notifyGraphChange]);
+    }, [setNodes, nodes, edges, notifyGraphChange, saveToHistory]);
 
     // Save edited edge
     const handleSaveEdge = useCallback((updatedEdge: GraphEdge) => {
@@ -213,8 +287,9 @@ function EditorCanvasInner({ dendros, onGraphChange }: EditorCanvasProps) {
                 : e
         );
         setEdges(updatedEdges);
+        saveToHistory(nodes, updatedEdges);
         notifyGraphChange(nodes, updatedEdges);
-    }, [setEdges, edges, nodes, notifyGraphChange]);
+    }, [setEdges, edges, nodes, notifyGraphChange, saveToHistory]);
 
     // Delete node
     const handleDeleteNode = useCallback((nodeId: string) => {
@@ -222,15 +297,17 @@ function EditorCanvasInner({ dendros, onGraphChange }: EditorCanvasProps) {
         const updatedEdges = edges.filter((e) => e.source !== nodeId && e.target !== nodeId);
         setNodes(updatedNodes);
         setEdges(updatedEdges);
+        saveToHistory(updatedNodes, updatedEdges);
         notifyGraphChange(updatedNodes, updatedEdges);
-    }, [setNodes, setEdges, nodes, edges, notifyGraphChange]);
+    }, [setNodes, setEdges, nodes, edges, notifyGraphChange, saveToHistory]);
 
     // Delete edge
     const handleDeleteEdge = useCallback((edgeId: string) => {
         const updatedEdges = edges.filter((e) => e.id !== edgeId);
         setEdges(updatedEdges);
+        saveToHistory(nodes, updatedEdges);
         notifyGraphChange(nodes, updatedEdges);
-    }, [setEdges, edges, nodes, notifyGraphChange]);
+    }, [setEdges, edges, nodes, notifyGraphChange, saveToHistory]);
 
     // Handle Selection Change
     const onSelectionChange = useCallback((params: OnSelectionChangeParams) => {
@@ -260,15 +337,28 @@ function EditorCanvasInner({ dendros, onGraphChange }: EditorCanvasProps) {
 
         setNodes(updatedNodes);
         setEdges(updatedEdges);
+        saveToHistory(updatedNodes, updatedEdges);
         notifyGraphChange(updatedNodes, updatedEdges);
         setDeleteConfirm({ isOpen: false, title: '', message: '' });
-    }, [currentSelection, nodes, edges, setNodes, setEdges, notifyGraphChange]);
+    }, [currentSelection, nodes, edges, setNodes, setEdges, notifyGraphChange, saveToHistory]);
 
     // Keyboard shortcuts for deletion and node creation
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             // Ignore if input is focused
             if (['INPUT', 'TEXTAREA', 'SELECT'].includes((document.activeElement as HTMLElement)?.tagName)) {
+                return;
+            }
+
+            // Undo/Redo shortcuts
+            if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+                e.preventDefault();
+                handleUndo();
+                return;
+            }
+            if ((e.ctrlKey || e.metaKey) && e.key === 'y') {
+                e.preventDefault();
+                handleRedo();
                 return;
             }
 
@@ -308,7 +398,7 @@ function EditorCanvasInner({ dendros, onGraphChange }: EditorCanvasProps) {
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [currentSelection, handleAddNode]);
+    }, [currentSelection, handleAddNode, handleUndo, handleRedo]);
 
     // Drag and drop handler
     const onDragOver = useCallback((e: React.DragEvent) => {
@@ -455,13 +545,19 @@ function EditorCanvasInner({ dendros, onGraphChange }: EditorCanvasProps) {
             )}
         </div>
     );
-}
+});
+
+EditorCanvasInner.displayName = 'EditorCanvasInner';
 
 // Wrapper component with ReactFlowProvider
-export default function EditorCanvas(props: EditorCanvasProps) {
+const EditorCanvas = forwardRef<EditorCanvasHandle, EditorCanvasProps>((props, ref) => {
     return (
         <ReactFlowProvider>
-            <EditorCanvasInner {...props} />
+            <EditorCanvasInner {...props} ref={ref} />
         </ReactFlowProvider>
     );
-}
+});
+
+EditorCanvas.displayName = 'EditorCanvas';
+
+export default EditorCanvas;

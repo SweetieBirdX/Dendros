@@ -2,11 +2,11 @@
 
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { fetchDendros, checkOwnership, updateDendros } from '@/lib/firestore';
 import { validateGraph } from '@/lib/graphValidator';
 import type { Dendros } from '@/types/graph';
-import EditorCanvas from '@/components/Editor/EditorCanvas';
+import EditorCanvas, { type EditorCanvasHandle } from '@/components/Editor/EditorCanvas';
 import ValidationOverlay from '@/components/Editor/ValidationOverlay';
 
 export default function EditorPage() {
@@ -22,6 +22,7 @@ export default function EditorPage() {
     const [tempTitle, setTempTitle] = useState('');
     const [editingDescription, setEditingDescription] = useState(false);
     const [tempDescription, setTempDescription] = useState('');
+    const editorRef = useRef<EditorCanvasHandle>(null);
 
     const dendrosId = params.id as string;
 
@@ -296,6 +297,30 @@ export default function EditorPage() {
                     </div>
                 </div>
                 <div className="flex items-center gap-3">
+                    {/* Undo/Redo Buttons */}
+                    <div className="flex items-center gap-2 mr-2">
+                        <button
+                            onClick={() => editorRef.current?.undo()}
+                            disabled={!editorRef.current?.canUndo()}
+                            className="p-2 rounded-lg bg-purple-600 hover:bg-purple-500 disabled:bg-purple-900/40 disabled:cursor-not-allowed transition-all text-white shadow-lg"
+                            title="Undo (Ctrl+Z)"
+                        >
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                            </svg>
+                        </button>
+                        <button
+                            onClick={() => editorRef.current?.redo()}
+                            disabled={!editorRef.current?.canRedo()}
+                            className="p-2 rounded-lg bg-purple-600 hover:bg-purple-500 disabled:bg-purple-900/40 disabled:cursor-not-allowed transition-all text-white shadow-lg"
+                            title="Redo (Ctrl+Y)"
+                        >
+                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M21 10h-10a8 8 0 00-8 8v2M21 10l-6 6m6-6l-6-6" />
+                            </svg>
+                        </button>
+                        <div className="w-px h-6 bg-purple-400 mx-1"></div>
+                    </div>
                     <button
                         onClick={() => window.open(`/${dendrosId}`, '_blank')}
                         className="bg-cyan-500 hover:bg-cyan-600 text-white px-4 py-2 rounded-lg transition-colors font-semibold"
@@ -331,7 +356,7 @@ export default function EditorPage() {
 
             {/* Editor Canvas */}
             <div className="flex-1 relative">
-                <EditorCanvas dendros={dendros} onGraphChange={handleGraphChange} />
+                <EditorCanvas ref={editorRef} dendros={dendros} onGraphChange={handleGraphChange} />
                 <ValidationOverlay graph={dendros.graph} />
             </div>
         </div>
