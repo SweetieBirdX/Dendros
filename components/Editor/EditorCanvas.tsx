@@ -1,8 +1,9 @@
 'use client';
 
-import { useCallback, useState, useEffect } from 'react';
+import { useCallback, useState, useEffect, useRef } from 'react';
 import {
     ReactFlow,
+    ReactFlowProvider,
     Background,
     Controls,
     MiniMap,
@@ -10,6 +11,7 @@ import {
     useEdgesState,
     addEdge,
     BackgroundVariant,
+    useReactFlow,
     type Node,
     type Edge,
     type OnConnect,
@@ -24,13 +26,16 @@ import NodePalette from '@/components/Editor/NodePalette';
 import NodeEditModal from '@/components/Editor/NodeEditModal';
 import EdgeEditModal from '@/components/Editor/EdgeEditModal';
 import ConfirmDialog from '@/components/Editor/ConfirmDialog';
+import InlineEdgeLabelEditor from '@/components/Editor/InlineEdgeLabelEditor';
+
 
 interface EditorCanvasProps {
     dendros: Dendros;
     onGraphChange?: (updatedDendros: Dendros) => void;
 }
 
-export default function EditorCanvas({ dendros, onGraphChange }: EditorCanvasProps) {
+// Inner component that uses useReactFlow hook
+function EditorCanvasInner({ dendros, onGraphChange }: EditorCanvasProps) {
     const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
     const [selectedEdge, setSelectedEdge] = useState<GraphEdge | null>(null);
     const [isNodeModalOpen, setIsNodeModalOpen] = useState(false);
@@ -39,6 +44,14 @@ export default function EditorCanvas({ dendros, onGraphChange }: EditorCanvasPro
     // Selection state for keyboard deletion
     const [currentSelection, setCurrentSelection] = useState<{ nodes: Node[], edges: Edge[] }>({ nodes: [], edges: [] });
     const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; title: string; message: string }>({ isOpen: false, title: '', message: '' });
+
+    // Visual connection feedback
+    const [isConnecting, setIsConnecting] = useState(false);
+    const reactFlowWrapper = useRef<HTMLDivElement>(null);
+    const { screenToFlowPosition } = useReactFlow();
+
+    // Inline edge label editing
+    const [inlineEdgeEdit, setInlineEdgeEdit] = useState<{ edgeId: string; position: { x: number; y: number }; label: string } | null>(null);
 
     // Convert Dendros graph to React Flow format
     const initialNodes: Node[] = dendros.graph.nodes.map(node => ({
@@ -103,13 +116,13 @@ export default function EditorCanvas({ dendros, onGraphChange }: EditorCanvasPro
         [setEdges, edges, nodes, notifyGraphChange]
     );
 
-    // Add new node
-    const handleAddNode = useCallback((type: NodeType) => {
+    // Add new node (with optional position)
+    const handleAddNode = useCallback((type: NodeType, position?: { x: number; y: number }) => {
         const newId = `node_${Date.now()}`;
         const newNode: Node = {
             id: newId,
             type,
-            position: { x: Math.random() * 400 + 100, y: Math.random() * 300 + 100 },
+            position: position || { x: Math.random() * 400 + 100, y: Math.random() * 300 + 100 },
             data: {
                 label: `New ${type.charAt(0).toUpperCase() + type.slice(1)}`,
             },
@@ -144,6 +157,35 @@ export default function EditorCanvas({ dendros, onGraphChange }: EditorCanvasPro
         setSelectedEdge(graphEdge);
         setIsEdgeModalOpen(true);
     }, []);
+
+    // Inline edge label editing on double-click
+    const handleEdgeDoubleClick = useCallback((event: any, edge: Edge) => {
+        // Calculate position from event
+        const position = {
+            x: event.clientX,
+            y: event.clientY,
+        };
+
+        setInlineEdgeEdit({
+            edgeId: edge.id,
+            position,
+            label: edge.label as string || '',
+        });
+    }, []);
+
+    // Save inline edge label
+    const handleSaveInlineEdgeLabel = useCallback((newLabel: string) => {
+        if (!inlineEdgeEdit) return;
+
+        const updatedEdges = edges.map((e) =>
+            e.id === inlineEdgeEdit.edgeId
+                ? { ...e, label: newLabel }
+                : e
+        );
+        setEdges(updatedEdges);
+        notifyGraphChange(nodes, updatedEdges);
+        setInlineEdgeEdit(null);
+    }, [inlineEdgeEdit, edges, nodes, setEdges, notifyGraphChange]);
 
     // Save edited node
     const handleSaveNode = useCallback((updatedNode: GraphNode) => {
@@ -222,7 +264,7 @@ export default function EditorCanvas({ dendros, onGraphChange }: EditorCanvasPro
         setDeleteConfirm({ isOpen: false, title: '', message: '' });
     }, [currentSelection, nodes, edges, setNodes, setEdges, notifyGraphChange]);
 
-    // Listen for Delete/Backspace key
+    // Keyboard shortcuts for deletion and node creation
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             // Ignore if input is focused
@@ -230,6 +272,7 @@ export default function EditorCanvas({ dendros, onGraphChange }: EditorCanvasPro
                 return;
             }
 
+            // Delete/Backspace for deletion
             if (e.key === 'Delete' || e.key === 'Backspace') {
                 const totalSelected = currentSelection.nodes.length + currentSelection.edges.length;
                 if (totalSelected > 0) {
@@ -240,30 +283,88 @@ export default function EditorCanvas({ dendros, onGraphChange }: EditorCanvasPro
                         message: `Are you sure you want to delete ${totalSelected} selected item(s)? This action cannot be undone.`
                     });
                 }
+                return;
+            }
+
+            // Quick node creation shortcuts
+            const centerPosition = { x: 250, y: 250 };
+            const key = e.key.toLowerCase();
+            switch (key) {
+                case 'q':
+                    handleAddNode('question', centerPosition);
+                    break;
+                case 'i':
+                case 'ı': // Turkish lowercase i
+                    handleAddNode('info', centerPosition);
+                    break;
+                case 'l':
+                    handleAddNode('logic', centerPosition);
+                    break;
+                case 'e':
+                    handleAddNode('end', centerPosition);
+                    break;
             }
         };
 
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [currentSelection]);
+    }, [currentSelection, handleAddNode]);
+
+    // Drag and drop handler
+    const onDragOver = useCallback((e: React.DragEvent) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+    }, []);
+
+    const onDrop = useCallback((e: React.DragEvent) => {
+        e.preventDefault();
+
+        const type = e.dataTransfer.getData('application/reactflow') as NodeType;
+        if (!type) return;
+
+        const position = screenToFlowPosition({
+            x: e.clientX,
+            y: e.clientY,
+        });
+
+        handleAddNode(type, position);
+    }, [screenToFlowPosition, handleAddNode]);
+
+    // Visual connection feedback
+    const onConnectStart = useCallback(() => {
+        setIsConnecting(true);
+    }, []);
+
+    const onConnectEnd = useCallback(() => {
+        setIsConnecting(false);
+    }, []);
+
 
 
     return (
-        <div className="w-full h-full relative">
+        <div
+            className="w-full h-full relative"
+            ref={reactFlowWrapper}
+            onDrop={onDrop}
+            onDragOver={onDragOver}
+        >
             <ReactFlow
                 nodes={nodes}
                 edges={edges}
                 onNodesChange={onNodesChange}
                 onEdgesChange={onEdgesChange}
                 onConnect={onConnect}
+                onConnectStart={onConnectStart}
+                onConnectEnd={onConnectEnd}
                 onNodeDoubleClick={handleNodeDoubleClick}
                 onEdgeClick={handleEdgeClick}
+                onEdgeDoubleClick={handleEdgeDoubleClick}
                 onSelectionChange={onSelectionChange}
                 deleteKeyCode={null} // Disable default delete behavior
                 nodeTypes={nodeTypes as unknown as NodeTypes}
                 edgeTypes={edgeTypes as any}
                 fitView
-                className="bg-slate-950"
+                className={`bg-slate-950 ${isConnecting ? 'cursor-crosshair' : ''}`}
             >
                 <Background
                     variant={BackgroundVariant.Dots}
@@ -342,6 +443,25 @@ export default function EditorCanvas({ dendros, onGraphChange }: EditorCanvasPro
                 confirmText="Delete"
                 type="danger"
             />
+
+            {/* Inline Edge Label Editor */}
+            {inlineEdgeEdit && (
+                <InlineEdgeLabelEditor
+                    initialLabel={inlineEdgeEdit.label}
+                    position={inlineEdgeEdit.position}
+                    onSave={handleSaveInlineEdgeLabel}
+                    onCancel={() => setInlineEdgeEdit(null)}
+                />
+            )}
         </div>
+    );
+}
+
+// Wrapper component with ReactFlowProvider
+export default function EditorCanvas(props: EditorCanvasProps) {
+    return (
+        <ReactFlowProvider>
+            <EditorCanvasInner {...props} />
+        </ReactFlowProvider>
     );
 }

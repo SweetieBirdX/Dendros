@@ -18,6 +18,11 @@ export default function NodePalette({ onAddNode }: NodePaletteProps) {
         { type: 'end', label: 'End', icon: '🔴', color: 'from-red-500 to-rose-500' },
     ];
 
+    const handleDragStart = (e: React.DragEvent, type: NodeType) => {
+        e.dataTransfer.setData('application/reactflow', type);
+        e.dataTransfer.effectAllowed = 'move';
+    };
+
     return (
         <div className="absolute top-20 left-4 z-10">
             <div className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 shadow-2xl overflow-hidden">
@@ -41,6 +46,8 @@ export default function NodePalette({ onAddNode }: NodePaletteProps) {
                             <button
                                 key={type}
                                 onClick={() => onAddNode(type)}
+                                draggable
+                                onDragStart={(e) => handleDragStart(e, type)}
                                 className={`
                   w-full px-4 py-3 rounded-lg
                   bg-gradient-to-r ${color}
@@ -49,6 +56,7 @@ export default function NodePalette({ onAddNode }: NodePaletteProps) {
                   transition-all duration-200
                   flex items-center gap-3
                   shadow-lg
+                  cursor-grab active:cursor-grabbing
                 `}
                             >
                                 <span>{label}</span>
@@ -61,7 +69,10 @@ export default function NodePalette({ onAddNode }: NodePaletteProps) {
                 {isExpanded && (
                     <div className="px-4 py-3 bg-white/5 border-t border-white/10">
                         <p className="text-white/60 text-xs">
-                            Click to add a node to the canvas
+                            Drag to canvas or click to add
+                        </p>
+                        <p className="text-white/40 text-xs mt-1">
+                            Shortcuts: Q, I, L, E
                         </p>
                     </div>
                 )}

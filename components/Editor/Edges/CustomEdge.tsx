@@ -19,13 +19,26 @@ function CustomEdge({
 
     return (
         <>
+            {/* Invisible wider path for easier clicking */}
+            <BaseEdge
+                id={`${id}-hitarea`}
+                path={edgePath}
+                style={{
+                    stroke: 'transparent',
+                    strokeWidth: 20,
+                    cursor: 'pointer',
+                }}
+            />
+            {/* Visible edge with glow effect */}
             <BaseEdge
                 id={id}
                 path={edgePath}
                 style={{
                     stroke: selected ? '#a855f7' : '#6366f1',
                     strokeWidth: selected ? 3 : 2,
+                    filter: selected ? 'drop-shadow(0 0 4px rgba(168, 85, 247, 0.6))' : 'none',
                 }}
+                className="transition-all duration-200 hover:!stroke-purple-400"
             />
             {label && (
                 <EdgeLabelRenderer>
@@ -42,6 +55,8 @@ function CustomEdge({
               shadow-lg backdrop-blur-sm
               ${selected ? 'ring-2 ring-purple-400' : ''}
               transition-all duration-200
+              hover:bg-purple-600 hover:scale-105
+              cursor-pointer
             `}
                     >
                         {label}
