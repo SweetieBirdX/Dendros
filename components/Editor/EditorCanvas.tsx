@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useEffect } from 'react';
 import {
     ReactFlow,
     Background,
@@ -14,6 +14,7 @@ import {
     type Edge,
     type OnConnect,
     type NodeTypes,
+    type OnSelectionChangeParams,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import type { Dendros, GraphNode, GraphEdge, NodeType, NodeData, EdgeCondition } from '@/types/graph';
@@ -22,6 +23,7 @@ import { edgeTypes } from '@/components/Editor/Edges';
 import NodePalette from '@/components/Editor/NodePalette';
 import NodeEditModal from '@/components/Editor/NodeEditModal';
 import EdgeEditModal from '@/components/Editor/EdgeEditModal';
+import ConfirmDialog from '@/components/Editor/ConfirmDialog';
 
 interface EditorCanvasProps {
     dendros: Dendros;
@@ -33,6 +35,10 @@ export default function EditorCanvas({ dendros, onGraphChange }: EditorCanvasPro
     const [selectedEdge, setSelectedEdge] = useState<GraphEdge | null>(null);
     const [isNodeModalOpen, setIsNodeModalOpen] = useState(false);
     const [isEdgeModalOpen, setIsEdgeModalOpen] = useState(false);
+
+    // Selection state for keyboard deletion
+    const [currentSelection, setCurrentSelection] = useState<{ nodes: Node[], edges: Edge[] }>({ nodes: [], edges: [] });
+    const [deleteConfirm, setDeleteConfirm] = useState<{ isOpen: boolean; title: string; message: string }>({ isOpen: false, title: '', message: '' });
 
     // Convert Dendros graph to React Flow format
     const initialNodes: Node[] = dendros.graph.nodes.map(node => ({
@@ -184,6 +190,64 @@ export default function EditorCanvas({ dendros, onGraphChange }: EditorCanvasPro
         notifyGraphChange(nodes, updatedEdges);
     }, [setEdges, edges, nodes, notifyGraphChange]);
 
+    // Handle Selection Change
+    const onSelectionChange = useCallback((params: OnSelectionChangeParams) => {
+        setCurrentSelection({
+            nodes: params.nodes,
+            edges: params.edges,
+        });
+    }, []);
+
+    // Perform the deletion after confirmation
+    const confirmDeleteSelection = useCallback(() => {
+        const nodesToDelete = currentSelection.nodes.map(n => n.id);
+        const edgesToDelete = currentSelection.edges.map(e => e.id);
+
+        let updatedNodes = [...nodes];
+        let updatedEdges = [...edges];
+
+        if (nodesToDelete.length > 0) {
+            updatedNodes = updatedNodes.filter(n => !nodesToDelete.includes(n.id));
+            // Also remove edges connected to deleted nodes
+            updatedEdges = updatedEdges.filter(e => !nodesToDelete.includes(e.source) && !nodesToDelete.includes(e.target));
+        }
+
+        if (edgesToDelete.length > 0) {
+            updatedEdges = updatedEdges.filter(e => !edgesToDelete.includes(e.id));
+        }
+
+        setNodes(updatedNodes);
+        setEdges(updatedEdges);
+        notifyGraphChange(updatedNodes, updatedEdges);
+        setDeleteConfirm({ isOpen: false, title: '', message: '' });
+    }, [currentSelection, nodes, edges, setNodes, setEdges, notifyGraphChange]);
+
+    // Listen for Delete/Backspace key
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            // Ignore if input is focused
+            if (['INPUT', 'TEXTAREA', 'SELECT'].includes((document.activeElement as HTMLElement)?.tagName)) {
+                return;
+            }
+
+            if (e.key === 'Delete' || e.key === 'Backspace') {
+                const totalSelected = currentSelection.nodes.length + currentSelection.edges.length;
+                if (totalSelected > 0) {
+                    e.preventDefault();
+                    setDeleteConfirm({
+                        isOpen: true,
+                        title: 'Delete Selected Items',
+                        message: `Are you sure you want to delete ${totalSelected} selected item(s)? This action cannot be undone.`
+                    });
+                }
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [currentSelection]);
+
+
     return (
         <div className="w-full h-full relative">
             <ReactFlow
@@ -194,6 +258,8 @@ export default function EditorCanvas({ dendros, onGraphChange }: EditorCanvasPro
                 onConnect={onConnect}
                 onNodeDoubleClick={handleNodeDoubleClick}
                 onEdgeClick={handleEdgeClick}
+                onSelectionChange={onSelectionChange}
+                deleteKeyCode={null} // Disable default delete behavior
                 nodeTypes={nodeTypes as unknown as NodeTypes}
                 edgeTypes={edgeTypes as any}
                 fitView
@@ -264,6 +330,17 @@ export default function EditorCanvas({ dendros, onGraphChange }: EditorCanvasPro
                 }}
                 onSave={handleSaveEdge}
                 onDelete={handleDeleteEdge}
+            />
+
+            {/* Keyboard Delete Confirmation */}
+            <ConfirmDialog
+                isOpen={deleteConfirm.isOpen}
+                title={deleteConfirm.title}
+                message={deleteConfirm.message}
+                onConfirm={confirmDeleteSelection}
+                onCancel={() => setDeleteConfirm({ isOpen: false, title: '', message: '' })}
+                confirmText="Delete"
+                type="danger"
             />
         </div>
     );
