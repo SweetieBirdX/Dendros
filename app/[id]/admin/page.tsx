@@ -169,7 +169,7 @@ export default function EditorPage() {
 
         // If unpublishing, ask for confirmation
         if (isUnpublishing) {
-            if (!confirm('Are you sure you want to unpublish this Dendros? The public link will clearly stop working, but existing data will be preserved.')) {
+            if (!confirm('Are you sure you want to unpublish this Dendros? The public link will stop working, but existing data will be preserved.')) {
                 return;
             }
         } else {
@@ -239,7 +239,7 @@ export default function EditorPage() {
     return (
         <div className="h-screen flex flex-col bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
             {/* Header */}
-            <div className="bg-black/20 backdrop-blur-sm border-b border-white/10 px-6 py-4 flex items-center justify-between">
+            <div className="bg-black/20 backdrop-blur-sm border-b border-white/10 px-6 py-3 flex items-center justify-between">
                 <div className="flex items-center gap-4">
                     <button
                         onClick={() => router.push('/dashboard')}
@@ -247,7 +247,7 @@ export default function EditorPage() {
                     >
                         ← Back
                     </button>
-                    <div>
+                    <div className="flex items-center gap-2">
                         {editingTitle ? (
                             <input
                                 type="text"
@@ -259,74 +259,61 @@ export default function EditorPage() {
                                 className="bg-white/10 text-white text-xl font-bold px-2 py-1 rounded border border-purple-500 focus:outline-none focus:border-purple-400"
                             />
                         ) : (
-                            <h1
-                                className="text-white text-xl font-bold cursor-pointer hover:text-purple-200 transition-colors"
-                                onClick={handleTitleEdit}
-                                title="Click to edit title"
-                            >
-                                {dendros.config.title}
-                            </h1>
-                        )}
-                        <div className="flex items-center gap-3 text-sm">
-                            {editingDescription ? (
-                                <input
-                                    type="text"
-                                    value={tempDescription}
-                                    onChange={(e) => setTempDescription(e.target.value)}
-                                    onBlur={handleDescriptionSave}
-                                    onKeyDown={handleDescriptionKeyDown}
-                                    autoFocus
-                                    placeholder="Add a description..."
-                                    className="bg-white/10 text-purple-300 text-sm px-2 py-1 rounded border border-purple-500 focus:outline-none focus:border-purple-400 min-w-[300px]"
-                                />
-                            ) : (
-                                <p
-                                    className="text-purple-300 cursor-pointer hover:text-purple-200 transition-colors"
-                                    onClick={handleDescriptionEdit}
-                                    title="Click to edit description"
+                            <>
+                                <h1
+                                    className="text-white text-xl font-bold cursor-pointer hover:text-purple-200 transition-colors"
+                                    onClick={handleTitleEdit}
+                                    title="Click to edit title"
                                 >
-                                    {dendros.config.description || 'Add a description...'}
-                                </p>
-                            )}
-                            {lastSaved && (
-                                <span className="text-green-300">
-                                    ✓ Saved {lastSaved.toLocaleTimeString()}
-                                </span>
-                            )}
-                        </div>
+                                    {dendros.config.title}
+                                </h1>
+                                {/* Compact Save Indicator */}
+                                {saving && (
+                                    <span className="text-purple-300 text-lg" title="Saving...">💾</span>
+                                )}
+                                {!saving && lastSaved && (
+                                    <span
+                                        className="text-green-400 text-lg"
+                                        title={`Saved at ${lastSaved.toLocaleTimeString()}`}
+                                    >
+                                        ✓
+                                    </span>
+                                )}
+                            </>
+                        )}
                     </div>
                 </div>
-                <div className="flex items-center gap-3">
-                    {/* Undo/Redo Buttons */}
-                    <div className="flex items-center gap-2 mr-2">
+                <div className="flex items-center gap-2">
+                    {/* Compact Undo/Redo */}
+                    <div className="flex items-center gap-1 mr-1">
                         <button
                             onClick={() => editorRef.current?.undo()}
                             disabled={!editorRef.current?.canUndo()}
-                            className="p-2 rounded-lg bg-purple-600 hover:bg-purple-500 disabled:bg-purple-900/40 disabled:cursor-not-allowed transition-all text-white shadow-lg"
+                            className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-white"
                             title="Undo (Ctrl+Z)"
                         >
-                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
                             </svg>
                         </button>
                         <button
                             onClick={() => editorRef.current?.redo()}
                             disabled={!editorRef.current?.canRedo()}
-                            className="p-2 rounded-lg bg-purple-600 hover:bg-purple-500 disabled:bg-purple-900/40 disabled:cursor-not-allowed transition-all text-white shadow-lg"
+                            className="p-1.5 rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-30 disabled:cursor-not-allowed transition-all text-white"
                             title="Redo (Ctrl+Y)"
                         >
-                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                                 <path strokeLinecap="round" strokeLinejoin="round" d="M21 10h-10a8 8 0 00-8 8v2M21 10l-6 6m6-6l-6-6" />
                             </svg>
                         </button>
-                        <div className="w-px h-6 bg-purple-400 mx-1"></div>
                     </div>
+                    <div className="w-px h-6 bg-white/20"></div>
                     <button
                         onClick={() => window.open(`/${dendrosId}`, '_blank')}
                         className="bg-cyan-500 hover:bg-cyan-600 text-white px-4 py-2 rounded-lg transition-colors font-semibold"
                         title="Preview as visitor"
                     >
-                        See as Visitor
+                        Preview
                     </button>
                     <button
                         onClick={() => router.push(`/${dendrosId}/admin/analytics`)}
@@ -349,7 +336,7 @@ export default function EditorPage() {
                             : 'bg-green-500 hover:bg-green-600 disabled:bg-green-500/50'
                             }`}
                     >
-                        {dendros.config.isPublished ? '⏸️ Unpublish' : '🚀 Publish'}
+                        {dendros.config.isPublished ? 'Unpublish' : 'Publish'}
                     </button>
                 </div>
             </div>

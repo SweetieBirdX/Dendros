@@ -64,18 +64,6 @@ export default function NodePalette({ onAddNode }: NodePaletteProps) {
                         ))}
                     </div>
                 )}
-
-                {/* Instructions */}
-                {isExpanded && (
-                    <div className="px-4 py-3 bg-white/5 border-t border-white/10">
-                        <p className="text-white/60 text-xs">
-                            Drag to canvas or click to add
-                        </p>
-                        <p className="text-white/40 text-xs mt-1">
-                            Shortcuts: Q, I, L, E
-                        </p>
-                    </div>
-                )}
             </div>
         </div>
     );

@@ -157,9 +157,13 @@ export default function DashboardPage() {
                                             {dendros.config.title}
                                         </h3>
                                         <div className="flex items-center gap-2">
-                                            {dendros.config.isPublished && (
+                                            {dendros.config.isPublished ? (
                                                 <span className="bg-green-500/20 text-green-300 text-xs px-2 py-1 rounded-full border border-green-500/30">
                                                     Published
+                                                </span>
+                                            ) : (
+                                                <span className="bg-gray-500/20 text-gray-300 text-xs px-2 py-1 rounded-full border border-gray-500/30">
+                                                    Unpublished
                                                 </span>
                                             )}
                                             <button
