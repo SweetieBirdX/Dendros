@@ -36,6 +36,20 @@ export default function AnalyticsPage() {
         URL.revokeObjectURL(url);
     };
 
+    // Helper function to convert path to readable node labels
+    const getReadablePath = (path: { nodeId: string }[]) => {
+        if (!dendros) return path.map(p => p.nodeId);
+
+        return path.map((step, index) => {
+            // First step is always "Start"
+            if (index === 0) return 'Start';
+
+            // Find the node in the graph and get its label
+            const node = dendros.graph.nodes.find(n => n.id === step.nodeId);
+            return node?.data.label || step.nodeId;
+        });
+    };
+
     const exportJSON = () => {
         console.log('Export JSON clicked', { dendros, submissions });
         if (!dendros) {
@@ -45,11 +59,31 @@ export default function AnalyticsPage() {
         const data = {
             dendrosId,
             title: dendros.config.title,
-            exportDate: new Date().toISOString(),
+            exportDate: new Date().toLocaleString('en-US', {
+                dateStyle: 'long',
+                timeStyle: 'short'
+            }),
             totalSubmissions: submissions.length,
             submissions: submissions.map(s => ({
-                completedAt: s.completedAt,
-                path: s.path.map(p => p.nodeId)
+                completedAt: new Date(s.completedAt).toLocaleString('en-US', {
+                    dateStyle: 'long',
+                    timeStyle: 'short'
+                }),
+                journey: s.path.map((step, index) => {
+                    // First step is always "Start"
+                    if (index === 0) {
+                        return { step: 'Start' };
+                    }
+
+                    // Find the node in the graph and get its label
+                    const node = dendros.graph.nodes.find(n => n.id === step.nodeId);
+                    const nodeLabel = node?.data.label || step.nodeId;
+
+                    return {
+                        question: nodeLabel,
+                        answer: step.answer || 'N/A'
+                    };
+                })
             }))
         };
         downloadFile(
@@ -66,12 +100,25 @@ export default function AnalyticsPage() {
             alert('No data to export');
             return;
         }
-        const headers = ['Submission #', 'Completed At', 'Path'];
-        const rows = submissions.map((s, i) => [
-            (i + 1).toString(),
-            new Date(s.completedAt).toLocaleString(),
-            s.path.map(p => p.nodeId).join(' → ')
-        ]);
+        const headers = ['Submission #', 'Completed At', 'Journey'];
+        const rows = submissions.map((s, i) => {
+            // Build journey string with Q&A format
+            const journeySteps = s.path.map((step, index) => {
+                if (index === 0) return 'Start';
+
+                const node = dendros.graph.nodes.find(n => n.id === step.nodeId);
+                const question = node?.data.label || step.nodeId;
+                const answer = step.answer || 'N/A';
+
+                return `${question}: ${answer}`;
+            });
+
+            return [
+                (i + 1).toString(),
+                new Date(s.completedAt).toLocaleString(),
+                journeySteps.join(' → ')
+            ];
+        });
 
         const csv = [headers, ...rows]
             .map(row => row.map(cell => `"${cell}"`).join(','))
@@ -94,7 +141,10 @@ export default function AnalyticsPage() {
         const graphData = {
             dendrosId,
             title: dendros.config.title,
-            exportDate: new Date().toISOString(),
+            exportDate: new Date().toLocaleString('en-US', {
+                dateStyle: 'long',
+                timeStyle: 'short'
+            }),
             graph: dendros.graph
         };
         downloadFile(
