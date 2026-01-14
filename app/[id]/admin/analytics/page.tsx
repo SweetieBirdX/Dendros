@@ -2,7 +2,8 @@
 
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { useEffect, useState, Fragment } from 'react';
+import { useEffect, useState, Fragment, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { fetchDendros, checkOwnership, fetchSubmissions } from '@/lib/firestore';
 import type { Dendros, Submission } from '@/types/graph';
 import AnalyticsCanvas from '@/components/Analytics/AnalyticsCanvas';
@@ -17,8 +18,108 @@ export default function AnalyticsPage() {
     const [error, setError] = useState<string | null>(null);
     const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
     const [viewMode, setViewMode] = useState<'list' | 'graph'>('list');
+    const [showExportMenu, setShowExportMenu] = useState(false);
+    const exportButtonRef = useRef<HTMLButtonElement>(null);
 
     const dendrosId = params.id as string;
+
+    // Export functions
+    const downloadFile = (content: string, filename: string, mimeType: string) => {
+        const blob = new Blob([content], { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    };
+
+    const exportJSON = () => {
+        console.log('Export JSON clicked', { dendros, submissions });
+        if (!dendros) {
+            alert('No data to export');
+            return;
+        }
+        const data = {
+            dendrosId,
+            title: dendros.config.title,
+            exportDate: new Date().toISOString(),
+            totalSubmissions: submissions.length,
+            submissions: submissions.map(s => ({
+                completedAt: s.completedAt,
+                path: s.path.map(p => p.nodeId)
+            }))
+        };
+        downloadFile(
+            JSON.stringify(data, null, 2),
+            `${dendros.config.title || 'dendros'}-submissions.json`,
+            'application/json'
+        );
+        setShowExportMenu(false);
+    };
+
+    const exportCSV = () => {
+        console.log('Export CSV clicked', { dendros, submissions });
+        if (!dendros) {
+            alert('No data to export');
+            return;
+        }
+        const headers = ['Submission #', 'Completed At', 'Path'];
+        const rows = submissions.map((s, i) => [
+            (i + 1).toString(),
+            new Date(s.completedAt).toLocaleString(),
+            s.path.map(p => p.nodeId).join(' → ')
+        ]);
+
+        const csv = [headers, ...rows]
+            .map(row => row.map(cell => `"${cell}"`).join(','))
+            .join('\n');
+
+        downloadFile(
+            csv,
+            `${dendros?.config.title || 'dendros'}-submissions.csv`,
+            'text/csv'
+        );
+        setShowExportMenu(false);
+    };
+
+    const exportGraph = () => {
+        console.log('Export Graph clicked', { dendros });
+        if (!dendros) {
+            alert('No data to export');
+            return;
+        }
+        const graphData = {
+            dendrosId,
+            title: dendros.config.title,
+            exportDate: new Date().toISOString(),
+            graph: dendros.graph
+        };
+        downloadFile(
+            JSON.stringify(graphData, null, 2),
+            `${dendros.config.title || 'dendros'}-graph.json`,
+            'application/json'
+        );
+        setShowExportMenu(false);
+    };
+
+    // Close export menu when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            const target = event.target as HTMLElement;
+            // Don't close if clicking on the export button or inside the dropdown
+            if (showExportMenu &&
+                !exportButtonRef.current?.contains(target) &&
+                !target.closest('[data-export-dropdown]')) {
+                setShowExportMenu(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [showExportMenu]);
 
     useEffect(() => {
         async function loadData() {
@@ -120,7 +221,7 @@ export default function AnalyticsPage() {
         <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-8">
             <div className="max-w-7xl mx-auto">
                 {/* Header */}
-                <div className="bg-black/20 backdrop-blur-sm border border-white/10 rounded-xl p-6 mb-6">
+                <div className="bg-black/20 backdrop-blur-sm border border-white/10 rounded-xl p-6 mb-6 overflow-visible">
                     <div className="flex items-center justify-between">
                         <div>
                             <h1 className="text-3xl font-bold text-white mb-2">
@@ -128,7 +229,7 @@ export default function AnalyticsPage() {
                             </h1>
                             <p className="text-purple-200">{dendros.config.title}</p>
                         </div>
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-3 overflow-visible">
                             {/* View Toggle */}
                             <div className="flex items-center gap-2 bg-white/10 rounded-lg p-1">
                                 <button
@@ -150,6 +251,53 @@ export default function AnalyticsPage() {
                                     📊 Graph View
                                 </button>
                             </div>
+
+                            {/* Export Dropdown */}
+                            <div className="relative z-50">
+                                <button
+                                    ref={exportButtonRef}
+                                    onClick={() => setShowExportMenu(!showExportMenu)}
+                                    className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors font-semibold flex items-center gap-2"
+                                >
+                                    Export Data
+                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </button>
+
+                                {showExportMenu && typeof window !== 'undefined' && createPortal(
+                                    <div
+                                        data-export-dropdown
+                                        className="fixed w-48 bg-white/5 backdrop-blur-lg border border-white/20 rounded-lg shadow-xl"
+                                        style={{
+                                            top: (exportButtonRef.current?.getBoundingClientRect().bottom || 0) + 8,
+                                            left: (exportButtonRef.current?.getBoundingClientRect().right || 0) - 192,
+                                            zIndex: 9999
+                                        }}
+                                    >
+                                        <button
+                                            onClick={exportJSON}
+                                            className="w-full text-left px-4 py-3 text-white hover:bg-white/10 transition-colors rounded-t-lg"
+                                        >
+                                            Export JSON
+                                        </button>
+                                        <button
+                                            onClick={exportCSV}
+                                            className="w-full text-left px-4 py-3 text-white hover:bg-white/10 transition-colors"
+                                        >
+                                            Export CSV
+                                        </button>
+                                        <button
+                                            onClick={exportGraph}
+                                            className="w-full text-left px-4 py-3 text-white hover:bg-white/10 transition-colors rounded-b-lg"
+                                        >
+                                            Export Graph
+                                        </button>
+                                    </div>,
+                                    document.body
+                                )}
+                            </div>
+
                             <button
                                 onClick={() => router.push(`/${dendrosId}/admin`)}
                                 className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg transition-colors"
