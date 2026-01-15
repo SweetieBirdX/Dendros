@@ -138,9 +138,10 @@ export function getNextNode(
     }
 
     // Find the first edge whose condition matches the user's answer
-    const matchingEdge = outgoingEdges.find(edge =>
-        evaluateCondition(edge.condition, userAnswer)
-    );
+    const matchingEdge = outgoingEdges.find(edge => {
+        const matches = evaluateCondition(edge.condition, userAnswer);
+        return matches;
+    });
 
     if (!matchingEdge) {
         return {
