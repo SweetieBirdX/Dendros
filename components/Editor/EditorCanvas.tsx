@@ -27,6 +27,8 @@ import NodeEditModal from '@/components/Editor/NodeEditModal';
 import EdgeEditModal from '@/components/Editor/EdgeEditModal';
 import ConfirmDialog from '@/components/Editor/ConfirmDialog';
 import InlineEdgeLabelEditor from '@/components/Editor/InlineEdgeLabelEditor';
+import OptionSelectorModal from '@/components/Editor/OptionSelectorModal';
+
 
 
 
@@ -60,6 +62,13 @@ const EditorCanvasInner = forwardRef<EditorCanvasHandle, EditorCanvasProps>(({ d
 
     // Inline edge label editing
     const [inlineEdgeEdit, setInlineEdgeEdit] = useState<{ edgeId: string; position: { x: number; y: number }; label: string } | null>(null);
+
+    // Option selector for question nodes
+    const [optionSelector, setOptionSelector] = useState<{
+        isOpen: boolean;
+        connection: { source: string; target: string } | null;
+        options: string[];
+    }>({ isOpen: false, connection: null, options: [] });
 
     // Undo/Redo history (session-based, cleared on refresh)
     const [history, setHistory] = useState<{ nodes: Node[]; edges: Edge[] }[]>([]);
@@ -175,15 +184,32 @@ const EditorCanvasInner = forwardRef<EditorCanvasHandle, EditorCanvasProps>(({ d
 
     const onConnect: OnConnect = useCallback(
         (connection) => {
-            const newEdge = {
-                ...connection,
-                id: `edge_${Date.now()}`,
-                label: 'New Connection',
-            };
-            const updatedEdges = addEdge(newEdge, edges as any);
-            setEdges(updatedEdges);
-            saveToHistory(nodes, updatedEdges);
-            notifyGraphChange(nodes, updatedEdges as any);
+            // Check if source node is a question node with options
+            const sourceNode = nodes.find(n => n.id === connection.source);
+            const sourceData = sourceNode?.data as any;
+
+            if (sourceNode?.type === 'question' &&
+                (sourceData?.inputType === 'multipleChoice' || sourceData?.inputType === 'checkbox') &&
+                sourceData?.options &&
+                sourceData.options.length > 0) {
+                // Show option selector
+                setOptionSelector({
+                    isOpen: true,
+                    connection: { source: connection.source!, target: connection.target! },
+                    options: sourceData.options
+                });
+            } else {
+                // Normal edge creation
+                const newEdge = {
+                    ...connection,
+                    id: `edge_${Date.now()}`,
+                    label: 'New Connection',
+                };
+                const updatedEdges = addEdge(newEdge, edges as any);
+                setEdges(updatedEdges);
+                saveToHistory(nodes, updatedEdges);
+                notifyGraphChange(nodes, updatedEdges as any);
+            }
         },
         [setEdges, edges, nodes, notifyGraphChange, saveToHistory]
     );
@@ -274,6 +300,32 @@ const EditorCanvasInner = forwardRef<EditorCanvasHandle, EditorCanvasProps>(({ d
         saveToHistory(updatedNodes, edges);
         notifyGraphChange(updatedNodes, edges);
     }, [setNodes, nodes, edges, notifyGraphChange, saveToHistory]);
+
+    // Handle option selection for question node edges
+    const handleOptionSelect = useCallback((selectedOption: string) => {
+        if (!optionSelector.connection) {
+            return;
+        }
+
+        const newEdge: Edge = {
+            id: `edge_${Date.now()}`,
+            source: optionSelector.connection.source,
+            target: optionSelector.connection.target,
+            label: selectedOption,
+            data: {
+                type: 'exact',
+                value: selectedOption
+            }
+        };
+
+        const updatedEdges = addEdge(newEdge, edges as any);
+        setEdges(updatedEdges);
+        saveToHistory(nodes, updatedEdges);
+        notifyGraphChange(nodes, updatedEdges as any);
+
+        // Close modal
+        setOptionSelector({ isOpen: false, connection: null, options: [] });
+    }, [optionSelector, edges, nodes, setEdges, saveToHistory, notifyGraphChange]);
 
     // Save edited edge
     const handleSaveEdge = useCallback((updatedEdge: GraphEdge) => {
@@ -543,6 +595,14 @@ const EditorCanvasInner = forwardRef<EditorCanvasHandle, EditorCanvasProps>(({ d
                     onCancel={() => setInlineEdgeEdit(null)}
                 />
             )}
+
+            {/* Option Selector Modal */}
+            <OptionSelectorModal
+                isOpen={optionSelector.isOpen}
+                options={optionSelector.options}
+                onSelect={handleOptionSelect}
+                onCancel={() => setOptionSelector({ isOpen: false, connection: null, options: [] })}
+            />
         </div>
     );
 });
