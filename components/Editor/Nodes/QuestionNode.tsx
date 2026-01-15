@@ -49,8 +49,17 @@ function QuestionNode({ data: propData, selected }: NodeProps) {
 
             {/* Options Preview */}
             {data.options && data.options.length > 0 && (
-                <div className="mt-2 text-blue-200 text-xs opacity-80">
-                    {data.options.length} option{data.options.length > 1 ? 's' : ''}
+                <div className="mt-3 space-y-1">
+                    <div className="text-blue-200 text-xs opacity-60 mb-1">Options (auto-edges created):</div>
+                    {data.options.map((option, index) => (
+                        <div
+                            key={index}
+                            className="inline-block px-2 py-1 mr-1 mb-1 rounded-md bg-green-500/20 text-green-200 text-xs border border-green-500/30"
+                            title={`Edge created for "${option}" - connect it to a node`}
+                        >
+                            ✓ {option}
+                        </div>
+                    ))}
                 </div>
             )}
 

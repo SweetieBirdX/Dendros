@@ -55,7 +55,7 @@ function CustomEdge({
               shadow-lg backdrop-blur-sm
               ${selected ? 'ring-2 ring-purple-400' : ''}
               transition-all duration-200
-              hover:bg-purple-600 hover:scale-105
+              hover:bg-purple-500
               cursor-pointer
             `}
                     >
