@@ -67,8 +67,8 @@ export function useFlowNavigation({ graph }: UseFlowNavigationProps) {
 
             // If it's a Logic node, continue automatically
             // If it's a Root node (shouldn't happen mid-flow but safe guard), continue
-            // If it's Question or End, stop and render
-            if (nextNode.type === 'question' || nextNode.type === 'end') {
+            // If it's Question, Info, or End, stop and render
+            if (nextNode.type === 'question' || nextNode.type === 'info' || nextNode.type === 'end') {
                 setCurrentNode(nextNode);
                 return;
             }
