@@ -3,12 +3,16 @@ import { useState, useEffect } from 'react';
 interface OptionSelectorModalProps {
     isOpen: boolean;
     options: string[];
+    isRequired?: boolean;
     onSelect: (option: string) => void;
     onCancel: () => void;
 }
 
-export default function OptionSelectorModal({ isOpen, options, onSelect, onCancel }: OptionSelectorModalProps) {
+export default function OptionSelectorModal({ isOpen, options, isRequired = false, onSelect, onCancel }: OptionSelectorModalProps) {
     const [selectedOption, setSelectedOption] = useState<string>('');
+
+    // Add special "None selected" option only if field is not required
+    const allOptions = isRequired ? options : [...options, '(None selected)'];
 
     // Reset selection when modal opens
     useEffect(() => {
@@ -41,7 +45,7 @@ export default function OptionSelectorModal({ isOpen, options, onSelect, onCance
 
                 {/* Options */}
                 <div className="p-6 space-y-2">
-                    {options.map((option) => (
+                    {allOptions.map((option) => (
                         <button
                             key={option}
                             onClick={() => setSelectedOption(option)}
