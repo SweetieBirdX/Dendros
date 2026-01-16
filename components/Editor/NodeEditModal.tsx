@@ -18,7 +18,6 @@ export default function NodeEditModal({ node, isOpen, onClose, onSave, onDelete 
         description: '',
         welcomeMessage: '',
         inputType: 'text',
-        options: '',
         placeholder: '',
         required: false,
         condition: '',
@@ -26,7 +25,25 @@ export default function NodeEditModal({ node, isOpen, onClose, onSave, onDelete 
         redirectUrl: '',
         buttonText: '',
     });
+    const [options, setOptions] = useState<string[]>(['', '']);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+    // Option management functions
+    const addOption = () => {
+        setOptions([...options, '']);
+    };
+
+    const updateOption = (index: number, value: string) => {
+        const newOptions = [...options];
+        newOptions[index] = value;
+        setOptions(newOptions);
+    };
+
+    const removeOption = (index: number) => {
+        if (options.length > 1) {
+            setOptions(options.filter((_, i) => i !== index));
+        }
+    };
 
     useEffect(() => {
         if (node) {
@@ -36,7 +53,6 @@ export default function NodeEditModal({ node, isOpen, onClose, onSave, onDelete 
                 // Type-specific fields
                 welcomeMessage: (node.data as any).welcomeMessage || '',
                 inputType: (node.data as any).inputType || 'text',
-                options: (node.data as any).options?.join(', ') || '',
                 placeholder: (node.data as any).placeholder || '',
                 required: (node.data as any).required || false,
                 condition: (node.data as any).condition || '',
@@ -44,6 +60,13 @@ export default function NodeEditModal({ node, isOpen, onClose, onSave, onDelete 
                 redirectUrl: (node.data as any).redirectUrl || '',
                 buttonText: (node.data as any).buttonText || '',
             });
+            // Set options array
+            const nodeOptions = (node.data as any).options;
+            if (nodeOptions && nodeOptions.length > 0) {
+                setOptions(nodeOptions);
+            } else {
+                setOptions(['', '']);
+            }
         }
     }, [node]);
 
