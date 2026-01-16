@@ -68,7 +68,8 @@ const EditorCanvasInner = forwardRef<EditorCanvasHandle, EditorCanvasProps>(({ d
         isOpen: boolean;
         connection: { source: string; target: string } | null;
         options: string[];
-    }>({ isOpen: false, connection: null, options: [] });
+        isRequired?: boolean;
+    }>({ isOpen: false, connection: null, options: [], isRequired: false });
 
     // Undo/Redo history (session-based, cleared on refresh)
     const [history, setHistory] = useState<{ nodes: Node[]; edges: Edge[] }[]>([]);
@@ -196,7 +197,8 @@ const EditorCanvasInner = forwardRef<EditorCanvasHandle, EditorCanvasProps>(({ d
                 setOptionSelector({
                     isOpen: true,
                     connection: { source: connection.source!, target: connection.target! },
-                    options: sourceData.options
+                    options: sourceData.options,
+                    isRequired: sourceData.required || false
                 });
             } else {
                 // Normal edge creation
@@ -307,15 +309,17 @@ const EditorCanvasInner = forwardRef<EditorCanvasHandle, EditorCanvasProps>(({ d
             return;
         }
 
+        // Check if "None selected" option was chosen
+        const isNoneSelected = selectedOption === '(None selected)';
+
         const newEdge: Edge = {
             id: `edge_${Date.now()}`,
             source: optionSelector.connection.source,
             target: optionSelector.connection.target,
-            label: selectedOption,
-            data: {
-                type: 'exact',
-                value: selectedOption
-            }
+            label: isNoneSelected ? 'None Selected' : selectedOption,
+            data: isNoneSelected
+                ? { type: 'none' }
+                : { type: 'exact', value: selectedOption }
         };
 
         const updatedEdges = addEdge(newEdge, edges as any);
@@ -324,7 +328,7 @@ const EditorCanvasInner = forwardRef<EditorCanvasHandle, EditorCanvasProps>(({ d
         notifyGraphChange(nodes, updatedEdges as any);
 
         // Close modal
-        setOptionSelector({ isOpen: false, connection: null, options: [] });
+        setOptionSelector({ isOpen: false, connection: null, options: [], isRequired: false });
     }, [optionSelector, edges, nodes, setEdges, saveToHistory, notifyGraphChange]);
 
     // Save edited edge
@@ -600,8 +604,9 @@ const EditorCanvasInner = forwardRef<EditorCanvasHandle, EditorCanvasProps>(({ d
             <OptionSelectorModal
                 isOpen={optionSelector.isOpen}
                 options={optionSelector.options}
+                isRequired={optionSelector.isRequired}
                 onSelect={handleOptionSelect}
-                onCancel={() => setOptionSelector({ isOpen: false, connection: null, options: [] })}
+                onCancel={() => setOptionSelector({ isOpen: false, connection: null, options: [], isRequired: false })}
             />
         </div>
     );
