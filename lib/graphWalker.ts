@@ -87,6 +87,14 @@ function evaluateCondition(
             }
             return false;
 
+        case 'none':
+            // No selection (for checkboxes)
+            if (Array.isArray(userAnswer)) {
+                return userAnswer.length === 0;
+            }
+            // For non-array answers, check if empty/null/undefined
+            return !userAnswer || userAnswer === '';
+
         default:
             return false;
     }

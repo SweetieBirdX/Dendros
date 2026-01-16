@@ -110,8 +110,9 @@ export interface GraphNode {
  * - range: Numeric range
  * - regex: Regular expression match
  * - always: Always traverse (default path)
+ * - none: No selection (for checkboxes)
  */
-export type EdgeConditionType = 'exact' | 'contains' | 'range' | 'regex' | 'always';
+export type EdgeConditionType = 'exact' | 'contains' | 'range' | 'regex' | 'always' | 'none';
 
 /**
  * Edge condition structure
