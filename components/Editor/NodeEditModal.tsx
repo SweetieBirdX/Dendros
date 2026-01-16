@@ -90,10 +90,8 @@ export default function NodeEditModal({ node, isOpen, onClose, onSave, onDelete 
             (updatedNode.data as any).placeholder = formData.placeholder;
             (updatedNode.data as any).required = formData.required;
             if (formData.inputType === 'multipleChoice' || formData.inputType === 'checkbox') {
-                (updatedNode.data as any).options = formData.options
-                    .split(',')
-                    .map((opt: string) => opt.trim())
-                    .filter((opt: string) => opt);
+                // Filter out empty options
+                (updatedNode.data as any).options = options.filter(opt => opt.trim() !== '');
             }
         } else if (node.type === 'logic') {
             (updatedNode.data as any).condition = formData.condition;
@@ -203,15 +201,40 @@ export default function NodeEditModal({ node, isOpen, onClose, onSave, onDelete 
                             {(formData.inputType === 'multipleChoice' || formData.inputType === 'checkbox') && (
                                 <div>
                                     <label className="block text-white/80 text-sm font-semibold mb-2">
-                                        Options (comma-separated) *
+                                        Options *
                                     </label>
-                                    <input
-                                        type="text"
-                                        value={formData.options}
-                                        onChange={(e) => setFormData({ ...formData, options: e.target.value })}
-                                        className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                        placeholder="Option 1, Option 2, Option 3"
-                                    />
+                                    <div className="space-y-2">
+                                        {options.map((option, index) => (
+                                            <div key={index} className="flex gap-2">
+                                                <input
+                                                    type="text"
+                                                    value={option}
+                                                    onChange={(e) => updateOption(index, e.target.value)}
+                                                    className="flex-1 px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                                    placeholder={`Option ${index + 1}`}
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeOption(index)}
+                                                    disabled={options.length === 1}
+                                                    className={`px-3 py-2 rounded-lg transition-colors ${options.length === 1
+                                                            ? 'bg-white/5 text-white/30 cursor-not-allowed'
+                                                            : 'bg-red-500/20 hover:bg-red-500/30 text-red-200'
+                                                        }`}
+                                                    title={options.length === 1 ? 'At least one option required' : 'Remove option'}
+                                                >
+                                                    ×
+                                                </button>
+                                            </div>
+                                        ))}
+                                        <button
+                                            type="button"
+                                            onClick={addOption}
+                                            className="w-full px-4 py-2 bg-purple-500/20 hover:bg-purple-500/30 text-purple-200 rounded-lg transition-colors border border-purple-500/30 font-semibold"
+                                        >
+                                            + Add Option
+                                        </button>
+                                    </div>
                                 </div>
                             )}
 
