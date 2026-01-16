@@ -218,8 +218,8 @@ export default function NodeEditModal({ node, isOpen, onClose, onSave, onDelete 
                                                     onClick={() => removeOption(index)}
                                                     disabled={options.length === 1}
                                                     className={`px-3 py-2 rounded-lg transition-colors ${options.length === 1
-                                                            ? 'bg-white/5 text-white/30 cursor-not-allowed'
-                                                            : 'bg-red-500/20 hover:bg-red-500/30 text-red-200'
+                                                        ? 'bg-white/5 text-white/30 cursor-not-allowed'
+                                                        : 'bg-red-500/20 hover:bg-red-500/30 text-red-200'
                                                         }`}
                                                     title={options.length === 1 ? 'At least one option required' : 'Remove option'}
                                                 >
@@ -238,18 +238,22 @@ export default function NodeEditModal({ node, isOpen, onClose, onSave, onDelete 
                                 </div>
                             )}
 
-                            <div>
-                                <label className="block text-white/80 text-sm font-semibold mb-2">
-                                    Placeholder
-                                </label>
-                                <input
-                                    type="text"
-                                    value={formData.placeholder}
-                                    onChange={(e) => setFormData({ ...formData, placeholder: e.target.value })}
-                                    className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                    placeholder="Enter placeholder text"
-                                />
-                            </div>
+
+                            {/* Hide placeholder for option-based inputs */}
+                            {formData.inputType !== 'multipleChoice' && formData.inputType !== 'checkbox' && (
+                                <div>
+                                    <label className="block text-white/80 text-sm font-semibold mb-2">
+                                        Placeholder
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={formData.placeholder}
+                                        onChange={(e) => setFormData({ ...formData, placeholder: e.target.value })}
+                                        className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                        placeholder="Enter placeholder text"
+                                    />
+                                </div>
+                            )}
 
                             <div className="flex items-center gap-2">
                                 <input
