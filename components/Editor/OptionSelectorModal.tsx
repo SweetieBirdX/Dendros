@@ -52,8 +52,8 @@ export default function OptionSelectorModal({ isOpen, options, isRequired = fals
                             className={`
                                 w-full px-4 py-3 rounded-lg text-left transition-all
                                 ${selectedOption === option
-                                    ? 'bg-purple-500 text-white ring-2 ring-purple-400'
-                                    : 'bg-white/10 text-white/80 hover:bg-white/20'
+                                    ? 'bg-white text-black ring-2 ring-white/50'
+                                    : 'bg-[#262626] hover:bg-[#404040] text-white border border-[#404040]'
                                 }
                             `}
                         >
@@ -66,7 +66,7 @@ export default function OptionSelectorModal({ isOpen, options, isRequired = fals
                                     }
                                 `}>
                                     {selectedOption === option && (
-                                        <div className="w-2 h-2 rounded-full bg-purple-500" />
+                                        <div className="w-2 h-2 rounded-full bg-white" />
                                     )}
                                 </div>
                                 <span className="font-semibold">{option}</span>
@@ -89,8 +89,8 @@ export default function OptionSelectorModal({ isOpen, options, isRequired = fals
                         className={`
                             px-4 py-2 rounded-lg transition-colors font-semibold
                             ${selectedOption
-                                ? 'bg-purple-500 hover:bg-purple-600 text-white'
-                                : 'bg-white/10 text-white/40 cursor-not-allowed'
+                                ? 'bg-white hover:bg-[#E5E5E5] text-black'
+                                : 'bg-[#262626] hover:bg-[#404040] text-[#737373] cursor-not-allowed'
                             }
                         `}
                     >

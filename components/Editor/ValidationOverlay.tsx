@@ -76,7 +76,7 @@ export default function ValidationOverlay({ graph }: ValidationOverlayProps) {
         <div className="absolute top-20 right-4 z-10 w-80">
             <div className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 shadow-2xl overflow-hidden">
                 {/* Header */}
-                <div className={`px-4 py-3 ${validation.isValid ? 'bg-yellow-500/20' : 'bg-red-500/20'} border-b border-white/10`}>
+                <div className={`px-4 py-3 ${validation.isValid ? 'bg-[#262626]' : 'bg-[#171717]'} border-b border-[#404040]`}>
                     <div className="flex items-center gap-2">
                         <span className="text-2xl">{validation.isValid ? '⚠️' : '❌'}</span>
                         <span className="text-white font-semibold">
@@ -92,9 +92,9 @@ export default function ValidationOverlay({ graph }: ValidationOverlayProps) {
                         {validation.errors.map((error, index) => (
                             <div
                                 key={index}
-                                className="px-3 py-2 bg-red-500/20 border border-red-500/30 rounded-lg"
+                                className="px-3 py-2 bg-[#171717] border border-white rounded-lg"
                             >
-                                <p className="text-red-200 text-sm">{getUserFriendlyMessage(error, graph)}</p>
+                                <p className="text-white text-sm">{getUserFriendlyMessage(error, graph)}</p>
                                 {error.nodeId && (
                                     <p className="text-red-300/60 text-xs mt-1">Node: {error.nodeId}</p>
                                 )}
@@ -110,9 +110,9 @@ export default function ValidationOverlay({ graph }: ValidationOverlayProps) {
                         {validation.warnings.map((warning, index) => (
                             <div
                                 key={index}
-                                className="px-3 py-2 bg-yellow-500/20 border border-yellow-500/30 rounded-lg"
+                                className="px-3 py-2 bg-[#262626] border border-[#525252] rounded-lg"
                             >
-                                <p className="text-yellow-200 text-sm">{getUserFriendlyMessage(warning, graph)}</p>
+                                <p className="text-[#D4D4D4] text-sm">{getUserFriendlyMessage(warning, graph)}</p>
                                 {warning.nodeId && (
                                     <p className="text-yellow-300/60 text-xs mt-1">Node: {warning.nodeId}</p>
                                 )}
