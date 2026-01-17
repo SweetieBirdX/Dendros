@@ -50,9 +50,9 @@ function CustomEdge({
                         }}
                         className={`
               px-3 py-1 rounded-md text-xs font-semibold
-              bg-white text-black
-              border border-[#E5E5E5]
-              hover:bg-[#E5E5E5]
+              bg-[#262626] text-white
+              border border-[#404040]
+              hover:bg-[#404040]
               cursor-pointer
             `}
                     >

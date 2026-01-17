@@ -86,7 +86,7 @@ export default function ConfirmDialog({
                     </button>
                     <button
                         onClick={onConfirm}
-                        className={`px-4 py-2 rounded-lg ${colors.button} text-white transition-colors font-medium`}
+                        className={`px-4 py-2 rounded-lg ${colors.button} transition-colors font-medium border-2 border-black`}
                     >
                         {confirmText}
                     </button>

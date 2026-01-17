@@ -6,11 +6,11 @@ import type { QuestionNodeData } from '@/types/graph';
 function QuestionNode({ data: propData, selected }: NodeProps) {
     const data = propData as unknown as QuestionNodeData;
     const inputTypeLabels: Record<string, string> = {
-        text: '📝 Text',
-        email: '📧 Email',
-        number: '🔢 Number',
-        multipleChoice: '☑️ Multiple Choice',
-        checkbox: '✅ Checkbox',
+        text: 'Text',
+        email: 'Email',
+        number: 'Number',
+        multipleChoice: 'Multiple Choice',
+        checkbox: 'Checkbox',
     };
 
     return (
