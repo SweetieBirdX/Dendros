@@ -47,7 +47,7 @@ export default function InlineEdgeLabelEditor({
                 transform: 'translate(-50%, -50%)',
                 zIndex: 1000,
             }}
-            className="bg-purple-500/95 backdrop-blur-lg rounded-lg shadow-2xl border-2 border-purple-400 p-1"
+            className="bg-[#171717] rounded-lg shadow-2xl border-2 border-white p-1"
         >
             <input
                 ref={inputRef}

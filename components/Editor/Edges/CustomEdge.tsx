@@ -34,11 +34,11 @@ function CustomEdge({
                 id={id}
                 path={edgePath}
                 style={{
-                    stroke: selected ? '#a855f7' : '#6366f1',
+                    stroke: selected ? '#14B8A6' : '#06B6D4',
                     strokeWidth: selected ? 3 : 2,
-                    filter: selected ? 'drop-shadow(0 0 4px rgba(168, 85, 247, 0.6))' : 'none',
+                    filter: selected ? 'drop-shadow(0 0 4px rgba(20, 184, 166, 0.6))' : 'none',
                 }}
-                className="transition-all duration-200 hover:!stroke-purple-400"
+                className="transition-all duration-200 hover:!stroke-[#14B8A6]"
             />
             {label && (
                 <EdgeLabelRenderer>
@@ -50,12 +50,9 @@ function CustomEdge({
                         }}
                         className={`
               px-3 py-1 rounded-md text-xs font-semibold
-              bg-purple-500/90 text-white
-              border border-purple-400/50
-              shadow-lg backdrop-blur-sm
-              ${selected ? 'ring-2 ring-purple-400' : ''}
-              transition-all duration-200
-              hover:bg-purple-500
+              bg-white text-black
+              border border-[#E5E5E5]
+              hover:bg-[#E5E5E5]
               cursor-pointer
             `}
                     >
