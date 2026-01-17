@@ -209,7 +209,7 @@ export default function EditorPage() {
 
     if (loading || loadingDendros) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+            <div className="min-h-screen flex items-center justify-center bg-black">
                 <div className="text-white text-xl">Loading editor...</div>
             </div>
         );
@@ -217,7 +217,7 @@ export default function EditorPage() {
 
     if (error) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+            <div className="min-h-screen flex items-center justify-center bg-black">
                 <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-6 max-w-md">
                     <h2 className="text-red-200 text-xl font-bold mb-2">Error</h2>
                     <p className="text-red-300">{error}</p>
@@ -237,7 +237,7 @@ export default function EditorPage() {
     }
 
     return (
-        <div className="h-screen flex flex-col bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+        <div className="h-screen flex flex-col bg-[#1A1A1A]">
             {/* Header */}
             <div className="bg-black/20 backdrop-blur-sm border-b border-white/10 px-6 py-3 flex items-center justify-between">
                 <div className="flex items-center gap-4">
@@ -315,30 +315,30 @@ export default function EditorPage() {
                     <div className="w-px h-6 bg-white/20"></div>
                     <button
                         onClick={() => window.open(`/${dendrosId}`, '_blank')}
-                        className="bg-cyan-500 hover:bg-cyan-600 text-white px-4 py-2 rounded-lg transition-colors font-semibold"
+                        className="bg-[#262626] hover:bg-[#404040] text-white px-4 py-2 rounded-lg transition-colors font-semibold border border-[#404040]"
                         title="Preview as visitor"
                     >
                         Preview
                     </button>
                     <button
                         onClick={() => router.push(`/${dendrosId}/admin/analytics`)}
-                        className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors font-semibold"
+                        className="bg-[#262626] hover:bg-[#404040] text-white px-4 py-2 rounded-lg transition-colors font-semibold border border-[#404040]"
                     >
                         Analytics
                     </button>
                     <button
                         onClick={handleSave}
                         disabled={saving}
-                        className="bg-purple-500 hover:bg-purple-600 disabled:bg-purple-500/50 text-white px-4 py-2 rounded-lg transition-colors font-semibold"
+                        className="bg-white hover:bg-[#E5E5E5] disabled:bg-[#737373] text-black px-4 py-2 rounded-lg transition-colors font-semibold"
                     >
                         {saving ? 'Saving...' : 'Save'}
                     </button>
                     <button
                         onClick={handlePublish}
                         disabled={saving}
-                        className={`px-4 py-2 rounded-lg transition-colors font-semibold text-white ${dendros.config.isPublished
-                            ? 'bg-amber-600 hover:bg-amber-700'
-                            : 'bg-green-500 hover:bg-green-600 disabled:bg-green-500/50'
+                        className={`px-4 py-2 rounded-lg transition-colors font-semibold ${dendros.config.isPublished
+                            ? 'bg-[#171717] hover:bg-[#262626] text-white border border-white'
+                            : 'bg-white hover:bg-[#E5E5E5] disabled:bg-[#737373] text-black'
                             }`}
                     >
                         {dendros.config.isPublished ? 'Unpublish' : 'Publish'}
