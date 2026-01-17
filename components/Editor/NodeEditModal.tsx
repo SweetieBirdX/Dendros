@@ -93,8 +93,6 @@ export default function NodeEditModal({ node, isOpen, onClose, onSave, onDelete 
                 // Filter out empty options
                 (updatedNode.data as any).options = options.filter(opt => opt.trim() !== '');
             }
-        } else if (node.type === 'logic') {
-            (updatedNode.data as any).condition = formData.condition;
         } else if (node.type === 'end') {
             (updatedNode.data as any).successMessage = formData.successMessage;
             (updatedNode.data as any).redirectUrl = formData.redirectUrl;
@@ -194,7 +192,6 @@ export default function NodeEditModal({ node, isOpen, onClose, onSave, onDelete 
                                     <option value="number">Number</option>
                                     <option value="multipleChoice">Multiple Choice</option>
                                     <option value="checkbox">Checkbox</option>
-                                    <option value="none">No Input (Info Only)</option>
                                 </select>
                             </div>
 
@@ -265,21 +262,6 @@ export default function NodeEditModal({ node, isOpen, onClose, onSave, onDelete 
                                 <label className="text-white/80 text-sm">Required field</label>
                             </div>
                         </>
-                    )}
-
-                    {node.type === 'logic' && (
-                        <div>
-                            <label className="block text-white/80 text-sm font-semibold mb-2">
-                                Condition *
-                            </label>
-                            <input
-                                type="text"
-                                value={formData.condition}
-                                onChange={(e) => setFormData({ ...formData, condition: e.target.value })}
-                                className="w-full px-4 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-purple-500 font-mono"
-                                placeholder="e.g., answer === 'Yes'"
-                            />
-                        </div>
                     )}
 
                     {node.type === 'end' && (

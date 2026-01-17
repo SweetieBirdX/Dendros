@@ -8,13 +8,13 @@
 // ============================================================================
 
 /**
- * Available node types in the graph
+ * Node types in the Dendros graph:
  * - root: Starting point of the flow
- * - question: User input node (text, multiple choice, etc.)
- * - logic: Conditional branching node
- * - end: Terminal node (completion screen)
+ * - question: Collects user input
+ * - end: Terminal node (completion)
+ * - info: Display information without input
  */
-export type NodeType = 'root' | 'question' | 'logic' | 'end' | 'info';
+export type NodeType = 'root' | 'question' | 'end' | 'info';
 
 /**
  * Input types for question nodes
