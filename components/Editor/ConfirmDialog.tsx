@@ -38,19 +38,19 @@ export default function ConfirmDialog({
 
     const colorClasses = {
         danger: {
-            bg: 'bg-red-500/20',
-            border: 'border-red-500/50',
-            button: 'bg-red-500 hover:bg-red-600'
+            bg: 'bg-[#171717]',
+            border: 'border-white',
+            button: 'bg-white hover:bg-[#E5E5E5] text-black'
         },
         warning: {
-            bg: 'bg-yellow-500/20',
-            border: 'border-yellow-500/50',
-            button: 'bg-yellow-500 hover:bg-yellow-600'
+            bg: 'bg-[#262626]',
+            border: 'border-[#525252]',
+            button: 'bg-[#D4D4D4] hover:bg-white text-black'
         },
         info: {
-            bg: 'bg-blue-500/20',
-            border: 'border-blue-500/50',
-            button: 'bg-blue-500 hover:bg-blue-600'
+            bg: 'bg-[#262626]',
+            border: 'border-[#404040]',
+            button: 'bg-[#737373] hover:bg-[#A3A3A3] text-white'
         }
     };
 

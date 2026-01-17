@@ -216,7 +216,7 @@ export default function NodeEditModal({ node, isOpen, onClose, onSave, onDelete 
                                                     disabled={options.length === 1}
                                                     className={`px-3 py-2 rounded-lg transition-colors ${options.length === 1
                                                         ? 'bg-white/5 text-white/30 cursor-not-allowed'
-                                                        : 'bg-red-500/20 hover:bg-red-500/30 text-red-200'
+                                                        : 'bg-[#262626] hover:bg-[#404040] text-white border border-[#404040]'
                                                         }`}
                                                     title={options.length === 1 ? 'At least one option required' : 'Remove option'}
                                                 >
@@ -227,7 +227,7 @@ export default function NodeEditModal({ node, isOpen, onClose, onSave, onDelete 
                                         <button
                                             type="button"
                                             onClick={addOption}
-                                            className="w-full px-4 py-2 bg-purple-500/20 hover:bg-purple-500/30 text-purple-200 rounded-lg transition-colors border border-purple-500/30 font-semibold"
+                                            className="w-full px-4 py-2 bg-[#262626] hover:bg-[#404040] text-white rounded-lg transition-colors border border-[#404040] font-semibold"
                                         >
                                             + Add Option
                                         </button>
@@ -314,7 +314,7 @@ export default function NodeEditModal({ node, isOpen, onClose, onSave, onDelete 
                 <div className="px-6 py-4 border-t border-white/10 flex items-center justify-between">
                     <button
                         onClick={handleDelete}
-                        className="px-4 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-200 rounded-lg transition-colors border border-red-500/30"
+                        className="px-4 py-2 bg-[#171717] hover:bg-[#262626] text-white rounded-lg transition-colors border border-white"
                     >
                         Delete Node
                     </button>
@@ -327,7 +327,7 @@ export default function NodeEditModal({ node, isOpen, onClose, onSave, onDelete 
                         </button>
                         <button
                             onClick={handleSave}
-                            className="px-4 py-2 bg-purple-500 hover:bg-purple-600 text-white rounded-lg transition-colors font-semibold"
+                            className="px-4 py-2 bg-white hover:bg-[#E5E5E5] text-black rounded-lg transition-colors font-semibold"
                         >
                             Save Changes
                         </button>
