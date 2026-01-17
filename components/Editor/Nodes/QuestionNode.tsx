@@ -17,22 +17,21 @@ function QuestionNode({ data: propData, selected }: NodeProps) {
         <div
             className={`
         px-6 py-4 rounded-xl border-2 shadow-lg min-w-[200px]
-        bg-gradient-to-br from-blue-500/20 to-cyan-500/20
-        backdrop-blur-sm
-        ${selected ? 'border-blue-400 ring-2 ring-blue-400/50' : 'border-blue-500/50'}
-        transition-all duration-200
+        bg-[#171717]
+        ${selected ? 'border-white ring-2 ring-white/30' : 'border-[#404040]'}
+        transition-all duration-200 hover:border-[#525252]
       `}
         >
             {/* Input Handle */}
             <Handle
                 type="target"
                 position={Position.Top}
-                className="w-3 h-3 bg-blue-500 border-2 border-blue-300"
+                className="w-3 h-3 bg-white border-2 border-[#E5E5E5]"
             />
 
             {/* Header */}
             <div className="flex items-center gap-2 mb-2">
-                <span className="text-xs font-semibold text-blue-300 uppercase tracking-wide">
+                <span className="text-xs font-semibold text-white uppercase tracking-wide">
                     Question
                 </span>
             </div>
@@ -43,21 +42,20 @@ function QuestionNode({ data: propData, selected }: NodeProps) {
             </div>
 
             {/* Input Type Badge */}
-            <div className="inline-block px-2 py-1 rounded-md bg-blue-500/30 text-blue-200 text-xs">
+            <div className="inline-block px-2 py-1 rounded-md bg-[#262626] text-[#D4D4D4] text-xs border border-[#404040]">
                 {inputTypeLabels[data.inputType] || data.inputType}
             </div>
 
             {/* Options Preview */}
             {data.options && data.options.length > 0 && (
                 <div className="mt-3 space-y-1">
-                    <div className="text-blue-200 text-xs opacity-60 mb-1">Options (auto-edges created):</div>
+                    <div className="text-[#737373] text-xs mb-1">Options:</div>
                     {data.options.map((option, index) => (
                         <div
                             key={index}
-                            className="inline-block px-2 py-1 mr-1 mb-1 rounded-md bg-green-500/20 text-green-200 text-xs border border-green-500/30"
-                            title={`Edge created for "${option}" - connect it to a node`}
+                            className="inline-block px-2 py-1 mr-1 mb-1 rounded-md bg-[#262626] text-white text-xs border border-[#404040]"
                         >
-                            ✓ {option}
+                            {option}
                         </div>
                     ))}
                 </div>
@@ -67,7 +65,7 @@ function QuestionNode({ data: propData, selected }: NodeProps) {
             <Handle
                 type="source"
                 position={Position.Bottom}
-                className="w-3 h-3 bg-blue-500 border-2 border-blue-300"
+                className="w-3 h-3 bg-white border-2 border-[#E5E5E5]"
             />
         </div>
     );

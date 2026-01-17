@@ -9,16 +9,15 @@ function RootNode({ data: propData, selected }: NodeProps) {
         <div
             className={`
         px-6 py-4 rounded-xl border-2 shadow-lg min-w-[200px]
-        bg-gradient-to-br from-green-500/20 to-emerald-500/20
-        backdrop-blur-sm
-        ${selected ? 'border-green-400 ring-2 ring-green-400/50' : 'border-green-500/50'}
-        transition-all duration-200
+        bg-[#171717]
+        ${selected ? 'border-white ring-2 ring-white/30' : 'border-[#404040]'}
+        transition-all duration-200 hover:border-[#525252]
       `}
         >
             {/* Header */}
             <div className="flex items-center gap-2 mb-2">
-                <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse" />
-                <span className="text-xs font-semibold text-green-300 uppercase tracking-wide">
+                <div className="w-3 h-3 rounded-full bg-white" />
+                <span className="text-xs font-semibold text-white uppercase tracking-wide">
                     Start
                 </span>
             </div>
@@ -29,7 +28,7 @@ function RootNode({ data: propData, selected }: NodeProps) {
             </div>
 
             {data.welcomeMessage && (
-                <div className="text-green-200 text-sm opacity-80">
+                <div className="text-[#A3A3A3] text-sm">
                     {data.welcomeMessage}
                 </div>
             )}
@@ -38,7 +37,7 @@ function RootNode({ data: propData, selected }: NodeProps) {
             <Handle
                 type="source"
                 position={Position.Bottom}
-                className="w-3 h-3 bg-green-500 border-2 border-green-300"
+                className="w-3 h-3 bg-white border-2 border-[#E5E5E5]"
             />
         </div>
     );
