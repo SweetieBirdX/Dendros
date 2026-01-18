@@ -113,13 +113,13 @@ export default function DashboardPage() {
                             <button
                                 onClick={handleCreateNew}
                                 disabled={creating}
-                                className="bg-green-500 hover:bg-green-600 disabled:bg-green-500/50 text-white px-6 py-3 rounded-lg transition-colors font-semibold"
+                                className="bg-white hover:bg-[#E5E5E5] disabled:bg-[#737373] text-black px-6 py-3 rounded-lg transition-colors font-semibold"
                             >
                                 {creating ? 'Creating...' : '+ New Dendros'}
                             </button>
                             <button
                                 onClick={signOut}
-                                className="bg-red-500/20 hover:bg-red-500/30 text-red-200 px-4 py-2 rounded-lg transition-colors border border-red-500/30"
+                                className="bg-[#171717] hover:bg-[#262626] text-white px-4 py-2 rounded-lg transition-colors border border-white"
                             >
                                 Sign Out
                             </button>
@@ -133,13 +133,13 @@ export default function DashboardPage() {
 
                     {dendrosList.length === 0 ? (
                         <div className="text-center py-16">
-                            <div className="text-purple-300 text-lg mb-4">No Dendros yet</div>
-                            <p className="text-purple-200/60 text-sm mb-6">
+                            <div className="text-[#D4D4D4] text-lg mb-4">No Dendros yet</div>
+                            <p className="text-[#A3A3A3] text-sm mb-6">
                                 Create your first interactive flow to get started
                             </p>
                             <button
                                 onClick={handleCreateNew}
-                                className="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-lg transition-colors font-semibold"
+                                className="bg-white hover:bg-[#E5E5E5] text-black px-6 py-3 rounded-lg transition-colors font-semibold"
                             >
                                 Create Your First Dendros
                             </button>
@@ -150,15 +150,15 @@ export default function DashboardPage() {
                                 <div
                                     key={dendros.dendrosId}
                                     onClick={() => router.push(`/${dendros.dendrosId}/admin`)}
-                                    className="bg-white/5 hover:bg-white/10 border border-white/10 hover:border-purple-500/50 rounded-xl p-6 cursor-pointer transition-all group"
+                                    className="bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#06B6D4] rounded-xl p-6 cursor-pointer transition-all group"
                                 >
                                     <div className="flex items-start justify-between mb-3">
-                                        <h3 className="text-white font-semibold text-lg group-hover:text-purple-300 transition-colors">
+                                        <h3 className="text-white font-semibold text-lg group-hover:text-[#06B6D4] transition-colors">
                                             {dendros.config.title}
                                         </h3>
                                         <div className="flex items-center gap-2">
                                             {dendros.config.isPublished ? (
-                                                <span className="bg-green-500/20 text-green-300 text-xs px-2 py-1 rounded-full border border-green-500/30">
+                                                <span className="bg-[#06B6D4]/20 text-[#06B6D4] text-xs px-2 py-1 rounded-full border border-[#06B6D4]/30">
                                                     Published
                                                 </span>
                                             ) : (

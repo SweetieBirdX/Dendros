@@ -112,7 +112,7 @@ export default function LoginPage() {
                                     setError('');
                                 }}
                                 className={`flex-1 py-2 px-4 rounded-lg font-semibold transition-all ${!isSignUp
-                                    ? 'bg-purple-500 text-white'
+                                    ? 'bg-white text-black'
                                     : 'bg-white/5 text-purple-200 hover:bg-white/10'
                                     }`}
                             >
@@ -169,7 +169,7 @@ export default function LoginPage() {
                             )}
 
                             {error && (
-                                <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-3">
+                                <div className="bg-[#171717] border border-white rounded-lg p-3">
                                     <p className="text-red-200 text-sm">{error}</p>
                                 </div>
                             )}
@@ -177,7 +177,7 @@ export default function LoginPage() {
                             <button
                                 type="submit"
                                 disabled={isSubmitting}
-                                className="w-full bg-purple-500 hover:bg-purple-600 disabled:bg-purple-500/50 text-white font-semibold py-3 px-6 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
+                                className="w-full bg-white hover:bg-[#E5E5E5] disabled:bg-[#737373] text-black font-semibold py-3 px-6 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
                             >
                                 {isSubmitting ? 'Please wait...' : isSignUp ? 'Create Account' : 'Sign In'}
                             </button>
