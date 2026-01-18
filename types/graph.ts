@@ -53,13 +53,7 @@ export interface QuestionNodeData extends BaseNodeData {
     };
 }
 
-/**
- * Data for logic nodes (conditional branching)
- */
-export interface LogicNodeData extends BaseNodeData {
-    condition: string; // Expression to evaluate
-    description?: string;
-}
+
 
 /**
  * Data for end nodes (completion)
@@ -79,7 +73,7 @@ export interface InfoNodeData extends BaseNodeData {
 /**
  * Union type for all possible node data types
  */
-export type NodeData = RootNodeData | QuestionNodeData | LogicNodeData | EndNodeData | InfoNodeData;
+export type NodeData = RootNodeData | QuestionNodeData | EndNodeData | InfoNodeData;
 
 /**
  * Position of a node in the visual editor
@@ -244,12 +238,7 @@ export function isQuestionNode(data: NodeData): data is QuestionNodeData {
     return 'inputType' in data;
 }
 
-/**
- * Type guard to check if node data is LogicNodeData
- */
-export function isLogicNode(data: NodeData): data is LogicNodeData {
-    return 'condition' in data;
-}
+
 
 /**
  * Type guard to check if node data is EndNodeData
@@ -269,5 +258,5 @@ export function isRootNode(data: NodeData): data is RootNodeData {
  * Type guard to check if node data is InfoNodeData
  */
 export function isInfoNode(data: NodeData): data is InfoNodeData {
-    return !isQuestionNode(data) && !isLogicNode(data) && !isEndNode(data) && !isRootNode(data);
+    return !isQuestionNode(data) && !isEndNode(data) && !isRootNode(data);
 }

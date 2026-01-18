@@ -443,9 +443,7 @@ const EditorCanvasInner = forwardRef<EditorCanvasHandle, EditorCanvasProps>(({ d
                 case 'ı': // Turkish lowercase i
                     handleAddNode('info', centerPosition);
                     break;
-                case 'l':
-                    handleAddNode('logic', centerPosition);
-                    break;
+
                 case 'e':
                     handleAddNode('end', centerPosition);
                     break;
@@ -531,8 +529,7 @@ const EditorCanvasInner = forwardRef<EditorCanvasHandle, EditorCanvasProps>(({ d
                                 return '#059669'; // Darker emerald
                             case 'question':
                                 return '#2563eb'; // Darker blue
-                            case 'logic':
-                                return '#d97706'; // Darker amber
+
                             case 'end':
                                 return '#dc2626'; // Darker red
                             case 'info':
