@@ -20,7 +20,7 @@ export default function RootStep({ data, onNext }: RootStepProps) {
 
             <button
                 onClick={onNext}
-                className="bg-purple-500 hover:bg-purple-600 text-white px-8 py-4 rounded-xl font-bold text-lg shadow-lg shadow-purple-500/30 transition-all hover:scale-105 hover:shadow-purple-500/50"
+                className="bg-white hover:bg-[#E5E5E5] text-black px-8 py-4 rounded-xl font-bold text-lg shadow-lg transition-all hover:scale-105"
             >
                 Start Now
             </button>

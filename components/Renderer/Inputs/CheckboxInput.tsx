@@ -22,14 +22,14 @@ export default function CheckboxInput({ options, value = [], onChange }: Checkbo
                         key={index}
                         onClick={() => toggleOption(option)}
                         className={`w-full text-left px-4 py-3 rounded-lg border transition-all duration-200 group flex items-center justify-between ${isSelected
-                                ? 'bg-purple-500/20 border-purple-500 text-white'
-                                : 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10 hover:border-white/20'
+                            ? 'bg-[#06B6D4]/20 border-[#06B6D4] text-white'
+                            : 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10 hover:border-white/20'
                             }`}
                     >
                         <span>{option}</span>
                         <div className={`w-5 h-5 rounded flex items-center justify-center border-2 ${isSelected
-                                ? 'bg-purple-500 border-purple-500'
-                                : 'border-slate-500 group-hover:border-slate-400 bg-transparent'
+                            ? 'bg-[#06B6D4] border-[#06B6D4]'
+                            : 'border-slate-500 group-hover:border-slate-400 bg-transparent'
                             }`}>
                             {isSelected && (
                                 <svg className="w-3.5 h-3.5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">

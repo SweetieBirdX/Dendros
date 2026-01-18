@@ -110,7 +110,7 @@ export default function QuestionStep({ data, onNext, onBack, initialValue }: Que
                 )}
                 <button
                     onClick={handleSubmit}
-                    className="flex-1 bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-xl font-bold shadow-lg shadow-purple-500/20 transition-all active:scale-95"
+                    className="flex-1 bg-white hover:bg-[#E5E5E5] text-black px-6 py-3 rounded-xl font-bold shadow-lg transition-all active:scale-95"
                 >
                     Continue
                 </button>

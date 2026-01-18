@@ -14,7 +14,7 @@ export default function TextInput({ value, onChange, type, placeholder, required
             onChange={(e) => onChange(e.target.value)}
             placeholder={placeholder}
             required={required}
-            className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all hover:bg-white/10"
+            className="w-full bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-[#06B6D4] transition-all hover:bg-white/10"
         />
     );
 }

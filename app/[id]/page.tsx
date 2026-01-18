@@ -45,7 +45,7 @@ function ErrorWithCountdown({ error }: { error: string }) {
     const strokeDashoffset = circumference - (progress / 100) * circumference;
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white p-4">
+        <div className="min-h-screen flex items-center justify-center bg-[#0A0A0A] text-white p-4">
             <div className="text-center max-w-md">
                 <div className="bg-white/10 backdrop-blur-lg p-8 rounded-2xl border border-white/20 shadow-2xl">
                     <h1 className="text-3xl font-bold mb-2 text-red-400">Error</h1>
@@ -69,7 +69,7 @@ function ErrorWithCountdown({ error }: { error: string }) {
                                     cx="64"
                                     cy="64"
                                     r="45"
-                                    stroke="#a855f7"
+                                    stroke="#06B6D4"
                                     strokeWidth="8"
                                     fill="none"
                                     strokeDasharray={circumference}
@@ -80,10 +80,10 @@ function ErrorWithCountdown({ error }: { error: string }) {
                             </svg>
                             {/* Countdown number */}
                             <div className="absolute inset-0 flex items-center justify-center">
-                                <span className="text-4xl font-bold text-purple-400">{countdown}</span>
+                                <span className="text-4xl font-bold text-[#06B6D4]">{countdown}</span>
                             </div>
                         </div>
-                        <p className="text-purple-300 text-sm">
+                        <p className="text-[#A3A3A3] text-sm">
                             Taking you back to home...
                         </p>
                     </div>
@@ -166,8 +166,8 @@ export default function PublicRendererPage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-slate-900">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500"></div>
+            <div className="min-h-screen flex items-center justify-center bg-[#0A0A0A]">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#06B6D4]"></div>
             </div>
         );
     }
