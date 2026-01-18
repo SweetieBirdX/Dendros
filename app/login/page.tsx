@@ -87,20 +87,20 @@ export default function LoginPage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+            <div className="min-h-screen flex items-center justify-center bg-[#0A0A0A]">
                 <div className="text-white text-xl">Loading...</div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
+        <div className="min-h-screen flex items-center justify-center bg-[#0A0A0A] p-4">
             <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 shadow-2xl border border-white/20 max-w-md w-full">
                 <div className="text-center space-y-6">
                     <h1 className="text-4xl font-bold text-white mb-2">
                         Dendros
                     </h1>
-                    <p className="text-purple-200 text-sm">
+                    <p className="text-[#A3A3A3] text-sm">
                         Graph-Based Workflow Engine
                     </p>
 
@@ -113,7 +113,7 @@ export default function LoginPage() {
                                 }}
                                 className={`flex-1 py-2 px-4 rounded-lg font-semibold transition-all ${!isSignUp
                                     ? 'bg-white text-black'
-                                    : 'bg-white/5 text-purple-200 hover:bg-white/10'
+                                    : 'bg-white/5 text-[#D4D4D4] hover:bg-white/10'
                                     }`}
                             >
                                 Sign In
@@ -124,8 +124,8 @@ export default function LoginPage() {
                                     setError('');
                                 }}
                                 className={`flex-1 py-2 px-4 rounded-lg font-semibold transition-all ${isSignUp
-                                    ? 'bg-purple-500 text-white'
-                                    : 'bg-white/5 text-purple-200 hover:bg-white/10'
+                                    ? 'bg-white text-black'
+                                    : 'bg-white/5 text-[#D4D4D4] hover:bg-white/10'
                                     }`}
                             >
                                 Sign Up
@@ -140,7 +140,7 @@ export default function LoginPage() {
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     required
-                                    className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                    className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-[#737373] focus:outline-none focus:ring-2 focus:ring-[#06B6D4]"
                                 />
                             </div>
 
@@ -151,7 +151,7 @@ export default function LoginPage() {
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     required
-                                    className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                    className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-[#737373] focus:outline-none focus:ring-2 focus:ring-[#06B6D4]"
                                 />
                             </div>
 
@@ -163,14 +163,14 @@ export default function LoginPage() {
                                         value={confirmPassword}
                                         onChange={(e) => setConfirmPassword(e.target.value)}
                                         required
-                                        className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                        className="w-full px-4 py-3 rounded-lg bg-white/10 border border-white/20 text-white placeholder-[#737373] focus:outline-none focus:ring-2 focus:ring-[#06B6D4]"
                                     />
                                 </div>
                             )}
 
                             {error && (
                                 <div className="bg-[#171717] border border-white rounded-lg p-3">
-                                    <p className="text-red-200 text-sm">{error}</p>
+                                    <p className="text-white text-sm">{error}</p>
                                 </div>
                             )}
 
@@ -185,18 +185,18 @@ export default function LoginPage() {
                     </div>
 
                     <div className="pt-6 border-t border-white/10 mt-6">
-                        <p className="text-sm text-purple-100 font-medium">
+                        <p className="text-sm text-[#D4D4D4] font-medium">
                             {isSignUp ? (
                                 <>
-                                    🚀 <span className="ml-2">Ready to start?</span>
-                                    <span className="block text-purple-200/80 text-xs mt-1 font-normal">
+                                    <span>Ready to start?</span>
+                                    <span className="block text-[#A3A3A3] text-xs mt-1 font-normal">
                                         Create an account to start building branching narratives
                                     </span>
                                 </>
                             ) : (
                                 <>
-                                    ✨ <span className="ml-2">Welcome back</span>
-                                    <span className="block text-purple-200/80 text-xs mt-1 font-normal">
+                                    <span>Welcome back</span>
+                                    <span className="block text-[#A3A3A3] text-xs mt-1 font-normal">
                                         Sign in to manage your branching narratives
                                     </span>
                                 </>
