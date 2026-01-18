@@ -85,7 +85,7 @@ export default function DashboardPage() {
 
     if (loading || loadingDendros) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+            <div className="min-h-screen flex items-center justify-center bg-[#0A0A0A]">
                 <div className="text-white text-xl">Loading...</div>
             </div>
         );
@@ -96,7 +96,7 @@ export default function DashboardPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-8">
+        <div className="min-h-screen bg-[#0A0A0A] p-8">
             <div className="max-w-7xl mx-auto">
                 {/* Header */}
                 <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 shadow-2xl border border-white/20 mb-8">
@@ -105,7 +105,7 @@ export default function DashboardPage() {
                             <h1 className="text-3xl font-bold text-white mb-2">
                                 Dashboard
                             </h1>
-                            <p className="text-purple-200">
+                            <p className="text-[#D4D4D4]">
                                 Welcome, {user.displayName || user.email}
                             </p>
                         </div>
@@ -197,12 +197,12 @@ export default function DashboardPage() {
                                     </div>
 
                                     {dendros.config.description && (
-                                        <p className="text-purple-200/80 text-sm mb-4 line-clamp-2">
+                                        <p className="text-[#A3A3A3] text-sm mb-4 line-clamp-2">
                                             {dendros.config.description}
                                         </p>
                                     )}
 
-                                    <div className="flex items-center justify-between text-xs text-purple-300/60">
+                                    <div className="flex items-center justify-between text-xs text-[#737373]">
                                         <span>{dendros.graph.nodes.length} nodes</span>
                                         <span>
                                             {dendros.updatedAt
