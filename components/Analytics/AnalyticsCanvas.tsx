@@ -126,7 +126,7 @@ export default function AnalyticsCanvas({ dendros, submissions }: AnalyticsCanva
                     variant={BackgroundVariant.Dots}
                     gap={16}
                     size={1}
-                    color="#6366f1"
+                    color="#404040"
                 />
                 <Controls />
             </ReactFlow>

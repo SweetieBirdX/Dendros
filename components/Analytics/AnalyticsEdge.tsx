@@ -34,11 +34,11 @@ function AnalyticsEdge({
 
     // Calculate color intensity based on traffic
     const getEdgeColor = () => {
-        if (count === 0) return '#9333ea'; // purple-600 (dim)
+        if (count === 0) return '#737373'; // gray (dim)
         const ratio = count / maxCount;
-        if (ratio > 0.7) return '#a855f7'; // purple-500 (bright)
-        if (ratio > 0.4) return '#9333ea'; // purple-600
-        return '#7c3aed'; // purple-700 (darker)
+        if (ratio > 0.7) return '#06B6D4'; // cyan (bright)
+        if (ratio > 0.4) return '#0891B2'; // cyan-600
+        return '#0E7490'; // cyan-700 (darker)
     };
 
     const strokeWidth = calculateStrokeWidth();
@@ -67,8 +67,8 @@ function AnalyticsEdge({
                     }}
                     className={`
                         px-3 py-1 rounded-md font-semibold
-                        bg-purple-600/95 text-white
-                        border border-purple-400/50
+                        bg-[#06B6D4]/95 text-white
+                        border border-[#06B6D4]/50
                         shadow-lg backdrop-blur-sm
                         ${count === 0 ? 'text-xs opacity-50' : 'text-sm'}
                         ${count > maxCount * 0.5 ? 'scale-110' : ''}

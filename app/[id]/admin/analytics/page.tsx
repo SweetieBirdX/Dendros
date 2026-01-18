@@ -242,7 +242,7 @@ export default function AnalyticsPage() {
 
     if (loading || loadingData) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+            <div className="min-h-screen flex items-center justify-center bg-[#0A0A0A]">
                 <div className="text-white text-xl">Loading analytics...</div>
             </div>
         );
@@ -250,13 +250,13 @@ export default function AnalyticsPage() {
 
     if (error) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-                <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-6 max-w-md">
-                    <h2 className="text-red-200 text-xl font-bold mb-2">Error</h2>
-                    <p className="text-red-300">{error}</p>
+            <div className="min-h-screen flex items-center justify-center bg-[#0A0A0A]">
+                <div className="bg-[#171717] border border-white rounded-lg p-6 max-w-md">
+                    <h2 className="text-white text-xl font-bold mb-2">Error</h2>
+                    <p className="text-[#D4D4D4]">{error}</p>
                     <button
                         onClick={() => router.push(`/${dendrosId}/admin`)}
-                        className="mt-4 bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg"
+                        className="mt-4 bg-white hover:bg-[#E5E5E5] text-black px-4 py-2 rounded-lg"
                     >
                         Back to Editor
                     </button>
@@ -268,7 +268,7 @@ export default function AnalyticsPage() {
     if (!dendros) return null;
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-8">
+        <div className="min-h-screen bg-[#0A0A0A] p-8">
             <div className="max-w-7xl mx-auto">
                 {/* Header */}
                 <div className="bg-black/20 backdrop-blur-sm border border-white/10 rounded-xl p-6 mb-6 overflow-visible">
@@ -277,28 +277,28 @@ export default function AnalyticsPage() {
                             <h1 className="text-3xl font-bold text-white mb-2">
                                 Analytics
                             </h1>
-                            <p className="text-purple-200">{dendros.config.title}</p>
+                            <p className="text-[#D4D4D4]">{dendros.config.title}</p>
                         </div>
                         <div className="flex items-center gap-3 overflow-visible">
                             {/* View Toggle */}
                             <div className="flex items-center gap-2 bg-white/10 rounded-lg p-1">
                                 <button
                                     onClick={() => setViewMode('list')}
-                                    className={`px-4 py-2 rounded-md transition-all ${viewMode === 'list'
-                                        ? 'bg-purple-600 text-white shadow-lg'
-                                        : 'text-purple-200 hover:text-white'
+                                    className={`px-4 py-2 rounded-md transition-all font-semibold ${viewMode === 'list'
+                                        ? 'bg-white text-black shadow-lg'
+                                        : 'text-[#D4D4D4] hover:text-white'
                                         }`}
                                 >
-                                    📋 List View
+                                    List View
                                 </button>
                                 <button
                                     onClick={() => setViewMode('graph')}
-                                    className={`px-4 py-2 rounded-md transition-all ${viewMode === 'graph'
-                                        ? 'bg-purple-600 text-white shadow-lg'
-                                        : 'text-purple-200 hover:text-white'
+                                    className={`px-4 py-2 rounded-md transition-all font-semibold ${viewMode === 'graph'
+                                        ? 'bg-white text-black shadow-lg'
+                                        : 'text-[#D4D4D4] hover:text-white'
                                         }`}
                                 >
-                                    📊 Graph View
+                                    Graph View
                                 </button>
                             </div>
 
@@ -307,7 +307,7 @@ export default function AnalyticsPage() {
                                 <button
                                     ref={exportButtonRef}
                                     onClick={() => setShowExportMenu(!showExportMenu)}
-                                    className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-colors font-semibold flex items-center gap-2"
+                                    className="bg-white hover:bg-[#E5E5E5] text-black px-4 py-2 rounded-lg transition-colors font-semibold flex items-center gap-2"
                                 >
                                     Export Data
                                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -350,7 +350,7 @@ export default function AnalyticsPage() {
 
                             <button
                                 onClick={() => router.push(`/${dendrosId}/admin`)}
-                                className="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg transition-colors"
+                                className="bg-white hover:bg-[#E5E5E5] text-black px-4 py-2 rounded-lg transition-colors font-semibold"
                             >
                                 ← Back to Editor
                             </button>
@@ -361,17 +361,17 @@ export default function AnalyticsPage() {
                 {/* Summary Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                     <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20">
-                        <div className="text-purple-300 text-sm mb-2">Total Submissions</div>
+                        <div className="text-[#A3A3A3] text-sm mb-2">Total Submissions</div>
                         <div className="text-white text-4xl font-bold">{submissions.length}</div>
                     </div>
                     <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20">
-                        <div className="text-purple-300 text-sm mb-2">Published</div>
+                        <div className="text-[#A3A3A3] text-sm mb-2">Published</div>
                         <div className="text-white text-4xl font-bold">
                             {dendros.config.isPublished ? '✓' : '✗'}
                         </div>
                     </div>
                     <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20">
-                        <div className="text-purple-300 text-sm mb-2">Last 24h</div>
+                        <div className="text-[#A3A3A3] text-sm mb-2">Last 24h</div>
                         <div className="text-white text-4xl font-bold">
                             {submissions.filter(s => {
                                 const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
@@ -406,8 +406,8 @@ export default function AnalyticsPage() {
 
                         {submissions.length === 0 ? (
                             <div className="p-12 text-center">
-                                <div className="text-purple-300 text-lg mb-2">No submissions yet</div>
-                                <p className="text-purple-200/60 text-sm">
+                                <div className="text-[#D4D4D4] text-lg mb-2">No submissions yet</div>
+                                <p className="text-[#A3A3A3] text-sm">
                                     Share your Dendros to start collecting responses
                                 </p>
                             </div>
@@ -416,13 +416,13 @@ export default function AnalyticsPage() {
                                 <table className="w-full">
                                     <thead className="bg-black/20">
                                         <tr>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-purple-300 uppercase tracking-wider">
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-[#A3A3A3] uppercase tracking-wider">
                                                 Date & Time
                                             </th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-purple-300 uppercase tracking-wider">
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-[#A3A3A3] uppercase tracking-wider">
                                                 Steps Taken
                                             </th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-purple-300 uppercase tracking-wider">
+                                            <th className="px-6 py-3 text-left text-xs font-medium text-[#A3A3A3] uppercase tracking-wider">
                                                 Actions
                                             </th>
                                         </tr>
@@ -434,13 +434,13 @@ export default function AnalyticsPage() {
                                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
                                                         {formatDate(submission.completedAt)}
                                                     </td>
-                                                    <td className="px-6 py-4 text-sm text-purple-200">
+                                                    <td className="px-6 py-4 text-sm text-[#D4D4D4]">
                                                         {submission.path.length} steps
                                                     </td>
                                                     <td className="px-6 py-4 text-sm">
                                                         <button
                                                             onClick={() => toggleRow(submission.submissionId)}
-                                                            className="text-purple-400 hover:text-purple-300 transition-colors"
+                                                            className="text-[#06B6D4] hover:text-[#14B8A6] transition-colors"
                                                         >
                                                             {expandedRows.has(submission.submissionId) ? '▼ Hide' : '▶ Show'} Details
                                                         </button>
@@ -451,15 +451,15 @@ export default function AnalyticsPage() {
                                                         <td colSpan={3} className="px-6 py-4">
                                                             <div className="space-y-3">
                                                                 <div>
-                                                                    <h4 className="text-purple-300 font-semibold mb-2">Path Taken:</h4>
+                                                                    <h4 className="text-[#D4D4D4] font-semibold mb-2">Path Taken:</h4>
                                                                     <div className="flex flex-wrap gap-2">
                                                                         {submission.path.map((step, idx) => {
                                                                             const nodeLabel = getNodeLabel(step.nodeId);
                                                                             return (
-                                                                                <div key={idx} className="bg-purple-500/20 border border-purple-500/30 rounded px-3 py-1 text-sm text-purple-200">
+                                                                                <div key={idx} className="bg-[#06B6D4]/20 border border-[#06B6D4]/30 rounded px-3 py-1 text-sm text-white">
                                                                                     <span className="font-semibold">{nodeLabel}</span>
                                                                                     {step.answer && (
-                                                                                        <span className="ml-2 text-purple-300">
+                                                                                        <span className="ml-2 text-[#A3A3A3]">
                                                                                             → {typeof step.answer === 'object' ? JSON.stringify(step.answer) : step.answer}
                                                                                         </span>
                                                                                     )}
