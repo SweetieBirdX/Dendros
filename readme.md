@@ -1,37 +1,43 @@
-# 🌳 Dendros
+# Dendros
 
 **Build Interactive Decision Trees in Minutes**
 
-Dendros is a modern, graph-based workflow engine for creating dynamic decision trees, surveys, and branching narratives. Inspired by Detroit: Become Human's flowchart system, it empowers creators to build intelligent, adaptive user experiences without writing code.
+Dendros is a modern, graph-based workflow engine for creating dynamic decision trees, surveys, and branching narratives. Build intelligent, adaptive user experiences without writing code.
+
+## Live Demo
+
+**[dendros.vercel.app](https://dendros.vercel.app)**
+
+Try it out without installation!
 
 [![GitHub](https://img.shields.io/badge/GitHub-SweetieBirdX%2FDendros-purple)](https://github.com/SweetieBirdX/Dendros)
-[![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-14-black)](https://nextjs.org/)
 [![React Flow](https://img.shields.io/badge/React%20Flow-Powered-blue)](https://reactflow.dev/)
 
 ---
 
-## ✨ Features
+## Features
 
-### 🎨 Visual Editor
+### Visual Editor
 - **Drag-and-drop interface** for building complex decision trees
 - **Real-time preview** of your workflows
 - **Undo/Redo support** for safe editing
-- **Multiple node types**: Root, Question, Info, Logic, End
+- **Multiple node types**: Root, Question, Info, End
 
-### ⚡ Smart Logic
+### Smart Logic
 - **Conditional branching** based on user responses
 - **Dynamic workflows** that adapt to user input
 - **Multiple choice paths** for complex decision making
 - **Graph validation** to prevent errors
 
-### 📊 Visual Analytics
+### Visual Analytics
 - **Traffic visualization** with edge thickness based on volume
 - **Percentage and count labels** on each path
 - **User journey tracking** to see popular routes
 - **Graph view / List view** toggle for different perspectives
 
-### 🚀 Modern Stack
-- **Next.js 16** with App Router for optimal performance
+### Modern Stack
+- **Next.js 14** with App Router for optimal performance
 - **React Flow** for professional node-based editing
 - **Firebase** for authentication and real-time data
 - **Tailwind CSS** for beautiful, responsive design
@@ -39,16 +45,16 @@ Dendros is a modern, graph-based workflow engine for creating dynamic decision t
 
 ---
 
-## 🎯 Use Cases
+## Use Cases
 
-- **📋 Surveys & Forms**: Create dynamic surveys that adapt based on responses
-- **🎯 Decision Guides**: Help users make informed decisions with interactive guides
-- **🔄 Workflows**: Design and visualize complex business processes
-- **🎮 Interactive Stories**: Build branching narratives and choose-your-own-adventure experiences
+- **Surveys & Forms**: Create dynamic surveys that adapt based on responses
+- **Decision Guides**: Help users make informed decisions with interactive guides
+- **Workflows**: Design and visualize complex business processes
+- **Interactive Stories**: Build branching narratives and choose-your-own-adventure experiences
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 - Node.js 18+ 
@@ -91,7 +97,7 @@ Navigate to [http://localhost:3000](http://localhost:3000)
 
 ---
 
-## 📖 How It Works
+## How It Works
 
 ### 1. Create Your Dendros
 - Sign up and access the dashboard
@@ -116,7 +122,7 @@ Navigate to [http://localhost:3000](http://localhost:3000)
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ### Data Model
 Dendros uses a **Directed Acyclic Graph (DAG)** structure:
@@ -139,9 +145,8 @@ Dendros uses a **Directed Acyclic Graph (DAG)** structure:
 
 ### Node Types
 - **Root**: Starting point of the flow
-- **Question**: Multiple choice questions
+- **Question**: Multiple choice, checkbox, and text input questions
 - **Info**: Information displays
-- **Logic**: Conditional branching
 - **End**: Terminal nodes
 
 ### Security
@@ -152,7 +157,7 @@ Dendros uses a **Directed Acyclic Graph (DAG)** structure:
 
 ---
 
-## 🎨 Screenshots
+## Screenshots
 
 ### Landing Page
 Modern, professional landing page with features showcase
@@ -166,7 +171,7 @@ Traffic visualization with edge thickness and percentages
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
@@ -178,13 +183,13 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ---
 
-## 📝 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
-## � Author
+## Author
 
 **Eyüp Efe**
 
@@ -193,9 +198,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
-- Inspired by Detroit: Become Human's flowchart system
 - Built with [Next.js](https://nextjs.org/)
 - Powered by [React Flow](https://reactflow.dev/)
 - Hosted on [Firebase](https://firebase.google.com/)
