@@ -18,7 +18,7 @@ export default function DashboardPage() {
 
     useEffect(() => {
         if (!loading && !user) {
-            router.push('/login');
+            router.push('/');
         }
     }, [user, loading, router]);
 
@@ -118,7 +118,10 @@ export default function DashboardPage() {
                                 {creating ? 'Creating...' : '+ New Dendros'}
                             </button>
                             <button
-                                onClick={signOut}
+                                onClick={async () => {
+                                    await signOut();
+                                    router.push('/');
+                                }}
                                 className="bg-[#171717] hover:bg-[#262626] text-white px-4 py-2 rounded-lg transition-colors border border-white"
                             >
                                 Sign Out

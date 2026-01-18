@@ -2,17 +2,13 @@
 
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+
 
 export default function LandingPage() {
     const { user, loading } = useAuth();
     const router = useRouter();
 
-    useEffect(() => {
-        if (!loading && user) {
-            router.push('/dashboard');
-        }
-    }, [user, loading, router]);
+
 
     if (loading) {
         return (
@@ -31,10 +27,10 @@ export default function LandingPage() {
                         <span className="text-white text-xl font-bold">Dendros</span>
                     </div>
                     <button
-                        onClick={() => router.push('/login')}
+                        onClick={() => router.push(user ? '/dashboard' : '/login')}
                         className="bg-[#262626] hover:bg-[#404040] text-white px-6 py-2 rounded-lg transition-all font-semibold border border-[#404040]"
                     >
-                        Login
+                        {user ? 'Dashboard' : 'Login'}
                     </button>
                 </div>
             </nav>
@@ -55,7 +51,7 @@ export default function LandingPage() {
                     </p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center">
                         <button
-                            onClick={() => router.push('/login')}
+                            onClick={() => router.push(user ? '/dashboard' : '/login')}
                             className="bg-white hover:bg-[#E5E5E5] text-black px-8 py-4 rounded-lg transition-all font-semibold text-lg shadow-lg hover:scale-105 transform"
                         >
                             Get Started Now
@@ -197,7 +193,7 @@ export default function LandingPage() {
                         Join creators building amazing decision trees today
                     </p>
                     <button
-                        onClick={() => router.push('/login')}
+                        onClick={() => router.push(user ? '/dashboard' : '/login')}
                         className="bg-white hover:bg-[#E5E5E5] text-black px-12 py-4 rounded-lg transition-all font-semibold text-lg shadow-lg hover:scale-105 transform"
                     >
                         Start Building Now
