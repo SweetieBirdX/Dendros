@@ -6,7 +6,7 @@ type Props = {
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-    const dendrosId = params.id;
+    const { id: dendrosId } = await params;
 
     try {
         const dendros = await fetchDendros(dendrosId);
