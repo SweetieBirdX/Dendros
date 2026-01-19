@@ -243,7 +243,7 @@ export default function EditorPage() {
                 <div className="flex items-center gap-4">
                     <button
                         onClick={() => router.push('/dashboard')}
-                        className="text-purple-200 hover:text-white transition-colors"
+                        className="text-[#D4D4D4] hover:text-white transition-colors"
                     >
                         ← Back
                     </button>
@@ -256,12 +256,12 @@ export default function EditorPage() {
                                 onBlur={handleTitleSave}
                                 onKeyDown={handleTitleKeyDown}
                                 autoFocus
-                                className="bg-white/10 text-white text-xl font-bold px-2 py-1 rounded border border-purple-500 focus:outline-none focus:border-purple-400"
+                                className="bg-white/10 text-white text-xl font-bold px-2 py-1 rounded border border-[#06B6D4] focus:outline-none focus:border-[#14B8A6]"
                             />
                         ) : (
                             <>
                                 <h1
-                                    className="text-white text-xl font-bold cursor-pointer hover:text-purple-200 transition-colors"
+                                    className="text-white text-xl font-bold cursor-pointer hover:text-[#D4D4D4] transition-colors"
                                     onClick={handleTitleEdit}
                                     title="Click to edit title"
                                 >
@@ -270,7 +270,7 @@ export default function EditorPage() {
                                 {/* Compact Save Indicator */}
                                 {saving && (
                                     <div className="animate-spin" title="Saving...">
-                                        <svg className="w-5 h-5 text-purple-400" fill="none" viewBox="0 0 24 24">
+                                        <svg className="w-5 h-5 text-[#06B6D4]" fill="none" viewBox="0 0 24 24">
                                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                         </svg>
