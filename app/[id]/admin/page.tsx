@@ -22,6 +22,7 @@ export default function EditorPage() {
     const [tempTitle, setTempTitle] = useState('');
     const [editingDescription, setEditingDescription] = useState(false);
     const [tempDescription, setTempDescription] = useState('');
+    const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
     const editorRef = useRef<EditorCanvasHandle>(null);
 
     const dendrosId = params.id as string;
@@ -71,6 +72,7 @@ export default function EditorPage() {
                 config: dendros.config,
             });
             setLastSaved(new Date());
+            setHasUnsavedChanges(false);
         } catch (err) {
             alert(`Error saving: ${err}`);
         } finally {
@@ -205,6 +207,7 @@ export default function EditorPage() {
 
     const handleGraphChange = (updatedDendros: Dendros) => {
         setDendros(updatedDendros);
+        setHasUnsavedChanges(true);
     };
 
     if (loading || loadingDendros) {
@@ -329,7 +332,10 @@ export default function EditorPage() {
                     <button
                         onClick={handleSave}
                         disabled={saving}
-                        className="bg-white hover:bg-[#E5E5E5] disabled:bg-[#737373] text-black px-4 py-2 rounded-lg transition-colors font-semibold"
+                        className={`px-4 py-2 rounded-lg transition-colors font-semibold ${hasUnsavedChanges
+                            ? 'bg-white hover:bg-[#E5E5E5] text-black'
+                            : 'bg-[#262626] hover:bg-[#404040] text-white border border-[#404040]'
+                            } disabled:opacity-50 disabled:cursor-not-allowed`}
                     >
                         {saving ? 'Saving...' : 'Save'}
                     </button>
