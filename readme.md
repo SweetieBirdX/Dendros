@@ -11,7 +11,7 @@ Dendros is a modern, graph-based workflow engine for creating dynamic decision t
 Try it out without installation!
 
 [![GitHub](https://img.shields.io/badge/GitHub-SweetieBirdX%2FDendros-purple)](https://github.com/SweetieBirdX/Dendros)
-[![Next.js](https://img.shields.io/badge/Next.js-14-black)](https://nextjs.org/)
+[![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org/)
 [![React Flow](https://img.shields.io/badge/React%20Flow-Powered-blue)](https://reactflow.dev/)
 
 ---
@@ -37,10 +37,11 @@ Try it out without installation!
 - **Graph view / List view** toggle for different perspectives
 
 ### Modern Stack
-- **Next.js 14** with App Router for optimal performance
+- **Next.js 16** with App Router for optimal performance
 - **React Flow** for professional node-based editing
 - **Firebase** for authentication and real-time data
-- **Tailwind CSS** for beautiful, responsive design
+- **Tailwind CSS 4** for beautiful, responsive design
+- **Zustand** for state management
 - **TypeScript** for type safety
 
 ---
@@ -57,7 +58,7 @@ Try it out without installation!
 ## Quick Start
 
 ### Prerequisites
-- Node.js 18+ 
+- Node.js 18.17+ (LTS recommended) 
 - npm or yarn
 - Firebase account
 
@@ -133,13 +134,17 @@ Dendros uses a **Directed Acyclic Graph (DAG)** structure:
   ownerId: string;
   config: {
     title: string;
-    description: string;
-    isPublished: boolean;
+    slug: string;
+    description?: string;
+    isPublished?: boolean;
+    allowAnonymous?: boolean;
   };
   graph: {
     nodes: Node[];  // Questions, Info, Logic, Endings
     edges: Edge[];  // Connections with conditions
   };
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 ```
 
