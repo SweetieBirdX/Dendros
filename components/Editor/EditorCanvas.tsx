@@ -426,7 +426,7 @@ const EditorCanvasInner = forwardRef<EditorCanvasHandle, EditorCanvasProps>(({ d
                     setDeleteConfirm({
                         isOpen: true,
                         title: 'Delete Selected Items',
-                        message: `Are you sure you want to delete ${totalSelected} selected item(s)? This action cannot be undone.`
+                        message: `Are you sure you want to delete ${totalSelected} selected item(s)?`
                     });
                 }
                 return;
@@ -521,32 +521,36 @@ const EditorCanvasInner = forwardRef<EditorCanvasHandle, EditorCanvasProps>(({ d
                     className="bg-white/10 backdrop-blur-lg border border-white/20 rounded-lg"
                     showInteractive={false}
                 />
-                <MiniMap
-                    className="bg-slate-900/80 backdrop-blur-lg border border-purple-500/30 rounded-lg"
-                    nodeColor={(node) => {
-                        switch (node.type) {
-                            case 'root':
-                                return '#059669'; // Darker emerald
-                            case 'question':
-                                return '#2563eb'; // Darker blue
+                {/* Hide MiniMap on mobile to prevent rendering issues */}
+                <div className="hidden md:block">
+                    <MiniMap
+                        className="bg-slate-900/80 backdrop-blur-lg border border-purple-500/30 rounded-lg"
+                        nodeColor={(node) => {
+                            switch (node.type) {
+                                case 'root':
+                                    return '#059669'; // Darker emerald
+                                case 'question':
+                                    return '#2563eb'; // Darker blue
 
-                            case 'end':
-                                return '#dc2626'; // Darker red
-                            case 'info':
-                                return '#0f766e'; // Darker teal
-                            default:
-                                return '#7c3aed'; // Darker purple
-                        }
-                    }}
-                    nodeStrokeColor={(node) => {
-                        return node.type === 'info' ? '#14b8a6' : '#10b981';
-                    }}
-                    nodeStrokeWidth={2}
-                    maskColor="rgba(15, 23, 42, 0.7)"
-                    style={{
-                        backgroundColor: 'rgba(15, 23, 42, 0.8)',
-                    }}
-                />
+                                case 'end':
+                                    return '#dc2626'; // Darker red
+                                case 'info':
+                                    return '#0f766e'; // Darker teal
+                                default:
+                                    return '#7c3aed'; // Darker purple
+                            }
+                        }}
+                        nodeStrokeColor={(node) => {
+                            return node.type === 'info' ? '#14b8a6' : '#10b981';
+                        }}
+                        nodeStrokeWidth={2}
+                        maskColor="rgba(15, 23, 42, 0.7)"
+                        style={{
+                            backgroundColor: 'rgba(15, 23, 42, 0.8)',
+                        }}
+                        position="bottom-right"
+                    />
+                </div>
             </ReactFlow>
 
             {/* Node Palette */}
