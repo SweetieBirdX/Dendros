@@ -84,11 +84,11 @@ export default function EdgeEditModal({ edge, isOpen, onClose, onSave, onDelete 
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
-            <div className="bg-slate-900 rounded-2xl border border-white/20 shadow-2xl w-full max-w-xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+            <div className="bg-slate-900 rounded-2xl border border-white/20 shadow-2xl w-full max-w-xl mx-4">
                 {/* Header */}
-                <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between">
-                    <h2 className="text-xl font-bold text-white">Edit Connection</h2>
+                <div className="px-4 md:px-6 py-3 md:py-4 border-b border-white/10 flex items-center justify-between">
+                    <h2 className="text-lg md:text-xl font-bold text-white">Edit Connection</h2>
                     <button
                         onClick={onClose}
                         className="text-white/60 hover:text-white transition-colors text-2xl"
@@ -98,7 +98,7 @@ export default function EdgeEditModal({ edge, isOpen, onClose, onSave, onDelete 
                 </div>
 
                 {/* Form */}
-                <div className="p-6 space-y-4">
+                <div className="p-4 md:p-6 space-y-4">
                     {/* Label */}
                     <div>
                         <label className="block text-white/80 text-sm font-semibold mb-2">
@@ -207,26 +207,53 @@ export default function EdgeEditModal({ edge, isOpen, onClose, onSave, onDelete 
                 </div>
 
                 {/* Footer */}
-                <div className="px-6 py-4 border-t border-white/10 flex items-center justify-between">
-                    <button
-                        onClick={handleDelete}
-                        className="px-4 py-2 bg-[#171717] hover:bg-[#262626] text-white rounded-lg transition-colors border border-white"
-                    >
-                        Delete Connection
-                    </button>
-                    <div className="flex gap-3">
-                        <button
-                            onClick={onClose}
-                            className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors"
-                        >
-                            Cancel
-                        </button>
+                <div className="px-4 md:px-6 py-3 md:py-4 border-t border-white/10">
+                    {/* Mobile: Cancel & Delete on top, Save below */}
+                    <div className="md:hidden flex flex-col gap-3">
+                        <div className="flex gap-3">
+                            <button
+                                onClick={onClose}
+                                className="flex-1 px-4 py-2 bg-white/10 hover:bg-white/20 text-white text-sm rounded-lg transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleDelete}
+                                className="flex-1 px-4 py-2 bg-[#171717] hover:bg-[#262626] text-white text-sm rounded-lg transition-colors border border-white"
+                            >
+                                Delete
+                            </button>
+                        </div>
                         <button
                             onClick={handleSave}
-                            className="px-4 py-2 bg-white hover:bg-[#E5E5E5] text-black rounded-lg transition-colors font-semibold"
+                            className="w-full px-4 py-2 bg-white hover:bg-[#E5E5E5] text-black text-sm rounded-lg transition-colors font-semibold"
                         >
                             Save Changes
                         </button>
+                    </div>
+
+                    {/* Desktop: Original layout */}
+                    <div className="hidden md:flex items-center justify-between">
+                        <button
+                            onClick={handleDelete}
+                            className="px-4 py-2 bg-[#171717] hover:bg-[#262626] text-white rounded-lg transition-colors border border-white"
+                        >
+                            Delete Connection
+                        </button>
+                        <div className="flex gap-3">
+                            <button
+                                onClick={onClose}
+                                className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleSave}
+                                className="px-4 py-2 bg-white hover:bg-[#E5E5E5] text-black rounded-lg transition-colors font-semibold"
+                            >
+                                Save Changes
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
