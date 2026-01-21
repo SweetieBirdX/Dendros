@@ -96,24 +96,24 @@ export default function DashboardPage() {
     }
 
     return (
-        <div className="min-h-screen bg-[#0A0A0A] p-8">
+        <div className="min-h-screen bg-[#0A0A0A] p-4 md:p-8">
             <div className="max-w-7xl mx-auto">
                 {/* Header */}
-                <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 shadow-2xl border border-white/20 mb-8">
-                    <div className="flex justify-between items-center">
+                <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-4 md:p-8 shadow-2xl border border-white/20 mb-6 md:mb-8">
+                    <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
                         <div>
-                            <h1 className="text-3xl font-bold text-white mb-2">
+                            <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">
                                 Dashboard
                             </h1>
-                            <p className="text-[#D4D4D4]">
+                            <p className="text-[#D4D4D4] text-sm md:text-base truncate">
                                 Welcome, {user.displayName || user.email}
                             </p>
                         </div>
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2 md:gap-3">
                             <button
                                 onClick={handleCreateNew}
                                 disabled={creating}
-                                className="bg-white hover:bg-[#E5E5E5] disabled:bg-[#737373] text-black px-6 py-3 rounded-lg transition-colors font-semibold"
+                                className="bg-white hover:bg-[#E5E5E5] disabled:bg-[#737373] text-black px-4 py-2 md:px-6 md:py-3 rounded-lg transition-colors font-semibold text-sm md:text-base flex-1 md:flex-none"
                             >
                                 {creating ? 'Creating...' : '+ New Dendros'}
                             </button>
@@ -122,7 +122,7 @@ export default function DashboardPage() {
                                     await signOut();
                                     router.push('/');
                                 }}
-                                className="bg-[#171717] hover:bg-[#262626] text-white px-4 py-2 rounded-lg transition-colors border border-white"
+                                className="bg-[#171717] hover:bg-[#262626] text-white px-3 py-2 md:px-4 md:py-2 rounded-lg transition-colors border border-white text-sm md:text-base"
                             >
                                 Sign Out
                             </button>

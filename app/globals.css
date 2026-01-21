@@ -89,3 +89,26 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--gray-600);
 }
+
+/* React Flow Attribution - High Visibility */
+.react-flow__attribution {
+  background: var(--gray-800) !important;
+  color: var(--white) !important;
+  padding: 4px 10px !important;
+  border-radius: 6px !important;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5) !important;
+  margin-right: 10px !important;
+  margin-bottom: 5px !important;
+  border: 1px solid var(--gray-700) !important;
+}
+
+.react-flow__attribution a {
+  color: var(--white) !important;
+  font-weight: 600 !important;
+  opacity: 1 !important;
+  text-decoration: none !important;
+}
+
+.react-flow__attribution a:hover {
+  color: var(--gray-200) !important;
+}
