@@ -19,6 +19,8 @@ export default function AnalyticsPage() {
     const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
     const [viewMode, setViewMode] = useState<'list' | 'graph'>('list');
     const [showExportMenu, setShowExportMenu] = useState(false);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [isClosing, setIsClosing] = useState(false);
     const exportButtonRef = useRef<HTMLButtonElement>(null);
 
     const dendrosId = params.id as string;
@@ -268,11 +270,118 @@ export default function AnalyticsPage() {
     if (!dendros) return null;
 
     return (
-        <div className="min-h-screen bg-[#0A0A0A] p-8">
+        <div className="min-h-screen bg-[#0A0A0A] p-4 md:p-8">
             <div className="max-w-7xl mx-auto">
                 {/* Header */}
-                <div className="bg-black/20 backdrop-blur-sm border border-white/10 rounded-xl p-6 mb-6 overflow-visible">
-                    <div className="flex items-center justify-between">
+                <div className="bg-black/20 backdrop-blur-sm border border-white/10 rounded-xl p-4 md:p-6 mb-6 overflow-visible">
+                    {/* Mobile Header */}
+                    <div className="md:hidden">
+                        <div className="flex items-center justify-between mb-4">
+                            <div>
+                                <h1 className="text-2xl font-bold text-white mb-1">
+                                    Analytics
+                                </h1>
+                                <p className="text-[#D4D4D4] text-sm truncate max-w-[180px]">{dendros.config.title}</p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={() => router.push(`/${dendrosId}/admin`)}
+                                    className="bg-white hover:bg-[#E5E5E5] text-black px-3 py-2 rounded-lg transition-colors font-semibold text-sm"
+                                >
+                                    ← Back
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        if (mobileMenuOpen) {
+                                            setIsClosing(true);
+                                        } else {
+                                            setMobileMenuOpen(true);
+                                        }
+                                    }}
+                                    className="p-2 rounded-lg bg-white/10 hover:bg-white/20 text-white"
+                                    title="Menu"
+                                >
+                                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Mobile Menu Dropdown */}
+                        {(mobileMenuOpen || isClosing) && (
+                            <div className={`space-y-3 pt-3 border-t border-white/10 ${isClosing ? 'animate-slideUp' : 'animate-slideDown'}`}
+                                onAnimationEnd={() => { if (isClosing) { setIsClosing(false); setMobileMenuOpen(false); } }}>
+                                {/* View Toggle */}
+                                <div>
+                                    <label className="block text-[#A3A3A3] text-xs uppercase mb-2">View Mode</label>
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={() => {
+                                                setViewMode('list');
+                                                setIsClosing(true);
+                                            }}
+                                            className={`flex-1 px-4 py-2 rounded-lg transition-all font-semibold text-sm ${viewMode === 'list'
+                                                ? 'bg-white text-black'
+                                                : 'bg-white/10 text-[#D4D4D4] hover:bg-white/20'
+                                                }`}
+                                        >
+                                            List View
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                setViewMode('graph');
+                                                setIsClosing(true);
+                                            }}
+                                            className={`flex-1 px-4 py-2 rounded-lg transition-all font-semibold text-sm ${viewMode === 'graph'
+                                                ? 'bg-white text-black'
+                                                : 'bg-white/10 text-[#D4D4D4] hover:bg-white/20'
+                                                }`}
+                                        >
+                                            Graph View
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Export Options */}
+                                <div>
+                                    <label className="block text-[#A3A3A3] text-xs uppercase mb-2">Export Data</label>
+                                    <div className="space-y-2">
+                                        <button
+                                            onClick={() => {
+                                                exportJSON();
+                                                setIsClosing(true);
+                                            }}
+                                            className="w-full bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg transition-colors text-sm text-left"
+                                        >
+                                            Export JSON
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                exportCSV();
+                                                setIsClosing(true);
+                                            }}
+                                            className="w-full bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg transition-colors text-sm text-left"
+                                        >
+                                            Export CSV
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                exportGraph();
+                                                setIsClosing(true);
+                                            }}
+                                            className="w-full bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg transition-colors text-sm text-left"
+                                        >
+                                            Export Graph
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Desktop Header */}
+                    <div className="hidden md:flex items-center justify-between">
                         <div>
                             <h1 className="text-3xl font-bold text-white mb-2">
                                 Analytics
@@ -359,20 +468,20 @@ export default function AnalyticsPage() {
                 </div>
 
                 {/* Summary Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-                    <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20">
-                        <div className="text-[#A3A3A3] text-sm mb-2">Total Submissions</div>
-                        <div className="text-white text-4xl font-bold">{submissions.length}</div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-6">
+                    <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 md:p-6 border border-white/20">
+                        <div className="text-[#A3A3A3] text-xs md:text-sm mb-2">Total Submissions</div>
+                        <div className="text-white text-3xl md:text-4xl font-bold">{submissions.length}</div>
                     </div>
-                    <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20">
-                        <div className="text-[#A3A3A3] text-sm mb-2">Published</div>
-                        <div className="text-white text-4xl font-bold">
+                    <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 md:p-6 border border-white/20">
+                        <div className="text-[#A3A3A3] text-xs md:text-sm mb-2">Published</div>
+                        <div className="text-white text-3xl md:text-4xl font-bold">
                             {dendros.config.isPublished ? '✓' : '✗'}
                         </div>
                     </div>
-                    <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20">
-                        <div className="text-[#A3A3A3] text-sm mb-2">Last 24h</div>
-                        <div className="text-white text-4xl font-bold">
+                    <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4 md:p-6 border border-white/20">
+                        <div className="text-[#A3A3A3] text-xs md:text-sm mb-2">Last 24h</div>
+                        <div className="text-white text-3xl md:text-4xl font-bold">
                             {submissions.filter(s => {
                                 const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
                                 return s.completedAt > dayAgo;
@@ -383,11 +492,11 @@ export default function AnalyticsPage() {
 
                 {/* Graph View */}
                 {viewMode === 'graph' ? (
-                    <div className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 overflow-hidden" style={{ height: '600px' }}>
+                    <div className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 overflow-hidden" style={{ height: window.innerWidth < 768 ? '400px' : '600px' }}>
                         {submissions.length === 0 ? (
                             <div className="h-full flex items-center justify-center">
-                                <div className="text-center">
-                                    <div className="text-purple-300 text-lg mb-2">No Data to Visualize</div>
+                                <div className="text-center px-4">
+                                    <div className="text-purple-300 text-base md:text-lg mb-2">No Data to Visualize</div>
                                     <p className="text-purple-200/60 text-sm">
                                         Share your Dendros to start collecting responses
                                     </p>
@@ -400,13 +509,13 @@ export default function AnalyticsPage() {
                 ) : (
                     /* List View - Submissions Table */
                     <div className="bg-white/10 backdrop-blur-lg rounded-xl border border-white/20 overflow-hidden">
-                        <div className="p-6 border-b border-white/10">
-                            <h2 className="text-xl font-semibold text-white">Submissions</h2>
+                        <div className="p-4 md:p-6 border-b border-white/10">
+                            <h2 className="text-lg md:text-xl font-semibold text-white">Submissions</h2>
                         </div>
 
                         {submissions.length === 0 ? (
-                            <div className="p-12 text-center">
-                                <div className="text-[#D4D4D4] text-lg mb-2">No submissions yet</div>
+                            <div className="p-8 md:p-12 text-center">
+                                <div className="text-[#D4D4D4] text-base md:text-lg mb-2">No submissions yet</div>
                                 <p className="text-[#A3A3A3] text-sm">
                                     Share your Dendros to start collecting responses
                                 </p>
@@ -416,13 +525,13 @@ export default function AnalyticsPage() {
                                 <table className="w-full">
                                     <thead className="bg-black/20">
                                         <tr>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-[#A3A3A3] uppercase tracking-wider">
+                                            <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-[#A3A3A3] uppercase tracking-wider">
                                                 Date & Time
                                             </th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-[#A3A3A3] uppercase tracking-wider">
+                                            <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-[#A3A3A3] uppercase tracking-wider">
                                                 Steps Taken
                                             </th>
-                                            <th className="px-6 py-3 text-left text-xs font-medium text-[#A3A3A3] uppercase tracking-wider">
+                                            <th className="px-3 md:px-6 py-3 text-left text-xs font-medium text-[#A3A3A3] uppercase tracking-wider">
                                                 Actions
                                             </th>
                                         </tr>
@@ -431,27 +540,28 @@ export default function AnalyticsPage() {
                                         {submissions.map((submission) => (
                                             <Fragment key={submission.submissionId}>
                                                 <tr className="hover:bg-white/5 transition-colors">
-                                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-white">
+                                                    <td className="px-3 md:px-6 py-3 md:py-4 whitespace-nowrap text-xs md:text-sm text-white">
                                                         {formatDate(submission.completedAt)}
                                                     </td>
-                                                    <td className="px-6 py-4 text-sm text-[#D4D4D4]">
+                                                    <td className="px-3 md:px-6 py-3 md:py-4 text-xs md:text-sm text-[#D4D4D4]">
                                                         {submission.path.length} steps
                                                     </td>
-                                                    <td className="px-6 py-4 text-sm">
+                                                    <td className="px-3 md:px-6 py-3 md:py-4 text-xs md:text-sm">
                                                         <button
                                                             onClick={() => toggleRow(submission.submissionId)}
                                                             className="text-[#06B6D4] hover:text-[#14B8A6] transition-colors"
                                                         >
-                                                            {expandedRows.has(submission.submissionId) ? '▼ Hide' : '▶ Show'} Details
+                                                            <span className="hidden md:inline">{expandedRows.has(submission.submissionId) ? '▼ Hide' : '▶ Show'} Details</span>
+                                                            <span className="md:hidden">{expandedRows.has(submission.submissionId) ? '▼' : '▶'}</span>
                                                         </button>
                                                     </td>
                                                 </tr>
                                                 {expandedRows.has(submission.submissionId) && (
                                                     <tr className="bg-black/30">
-                                                        <td colSpan={3} className="px-6 py-4">
+                                                        <td colSpan={3} className="px-3 md:px-6 py-3 md:py-4">
                                                             <div className="space-y-3">
                                                                 <div>
-                                                                    <h4 className="text-[#D4D4D4] font-semibold mb-2">Path Taken:</h4>
+                                                                    <h4 className="text-[#D4D4D4] font-semibold mb-2 text-sm md:text-base">Path Taken:</h4>
                                                                     <div className="flex flex-wrap gap-2">
                                                                         {submission.path.map((step, idx) => {
                                                                             const nodeLabel = getNodeLabel(step.nodeId);
