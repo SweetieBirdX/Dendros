@@ -24,6 +24,7 @@ export default function EditorPage() {
     const [tempDescription, setTempDescription] = useState('');
     const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [isClosing, setIsClosing] = useState(false);
     const editorRef = useRef<EditorCanvasHandle>(null);
 
     const dendrosId = params.id as string;
@@ -381,7 +382,13 @@ export default function EditorPage() {
                     </button>
                     {/* Hamburger Menu */}
                     <button
-                        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                        onClick={() => {
+                            if (mobileMenuOpen) {
+                                setIsClosing(true);
+                            } else {
+                                setMobileMenuOpen(true);
+                            }
+                        }}
                         className="p-2 rounded-lg bg-white/10 hover:bg-white/20 text-white"
                         title="Menu"
                     >
@@ -393,12 +400,13 @@ export default function EditorPage() {
             </div>
 
             {/* Mobile Menu Dropdown */}
-            {mobileMenuOpen && (
-                <div className="md:hidden bg-black/40 backdrop-blur-sm border-b border-white/10 px-4 py-3 space-y-2">
+            {(mobileMenuOpen || isClosing) && (
+                <div className={`md:hidden bg-black/40 backdrop-blur-sm border-b border-white/10 px-4 py-3 space-y-2 ${isClosing ? 'animate-slideUp' : 'animate-slideDown'}`}
+                    onAnimationEnd={() => { if (isClosing) { setIsClosing(false); setMobileMenuOpen(false); } }}>
                     <button
                         onClick={() => {
                             window.open(`/${dendrosId}`, '_blank');
-                            setMobileMenuOpen(false);
+                            setIsClosing(true);
                         }}
                         className="w-full bg-[#262626] hover:bg-[#404040] text-white px-4 py-2 rounded-lg transition-colors font-semibold border border-[#404040]"
                     >
@@ -407,7 +415,7 @@ export default function EditorPage() {
                     <button
                         onClick={() => {
                             router.push(`/${dendrosId}/admin/analytics`);
-                            setMobileMenuOpen(false);
+                            setIsClosing(true);
                         }}
                         className="w-full bg-[#262626] hover:bg-[#404040] text-white px-4 py-2 rounded-lg transition-colors font-semibold border border-[#404040]"
                     >
